@@ -3,13 +3,10 @@ name = "mxf"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ['.', 'api', 'service']
+
 [dependencies]
-tokio = "1.26.0"
-chrono = "0.4.23"
-jsonwebtoken = { version = "9.2.0", default-features = false }
-lazy_static = "1.4.0"
-rocket = { version = "0.5.0", features = ["json", "secrets"] }
-serde = { version = "1.0.148", features = ["derive"] }
+api = { path = "api" }
 shuttle-rocket = "0.35.0"
 shuttle-runtime = "0.35.0"
-rocket_dyn_templates = { version = "0.1.0-rc.1", features = ["handlebars"] }
