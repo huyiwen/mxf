@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Dump Context
         env:
-          SHUTTLE_API_KEY: ${{ secrets.SHUTTLE_API_KEY }}
+          SHUTTLE_API_KEY: ${{ vars.SHUTTLE_API_KEY }}
         run: |
           echo "SHUTTLE_API_KEY length: ${#SHUTTLE_API_KEY}"
       - uses: shuttle-hq/deploy-action@main
         with:
-          deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
+          deploy-key: ${{ vars.SHUTTLE_API_KEY }}
