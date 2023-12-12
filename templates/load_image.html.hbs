@@ -1,0 +1,36 @@
+<script version=2>
+    var script = document.getElementsByTagName("script");
+    for (var i = 0; i < script.length; i++) {
+        if (script[i].getAttribute("version")) {
+            if (script[i].getAttribute("version") != localStorage["version"]) {
+                localStorage.clear();
+                localStorage["version"] = script[i].getAttribute("version");
+            }
+        }
+    }
+
+    //img
+    function loadImg(img) {
+        if (img.getAttribute("lsrc")) {
+            if (!localStorage[img.getAttribute("lsrc")]) {
+                var x = new XMLHttpRequest();
+                x.responseType = "blob";
+                x.open("get", img.getAttribute("lsrc"), true);
+                x.onreadystatechange = function () {
+                    if (x.readyState == 4) {
+                        var reader = new FileReader();
+                        reader.readAsDataURL(x.response);
+                        reader.onload = function () {
+                            localStorage[img.getAttribute("lsrc")] = this.result;
+                            img.src = this.result;
+                        }
+                    }
+                }
+                x.send();
+            }
+            else {
+                img.src = localStorage[img.getAttribute("lsrc")];
+            }
+        }
+    }
+</script>

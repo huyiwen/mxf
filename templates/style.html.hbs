@@ -1,138 +1,88 @@
 <style>
-.ruc {
-    text-align: center;
-    margin-top: 5%;
-
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
 }
 
-.title {
-    text-align: center;
-    font-family: '楷体';
-    font-size: 50px;
-    margin-top: 10px;
+.search-container {
+    display: flex; /* 使用Flexbox来居中元素 */
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
 }
 
-.bg {
-    height: 50px;
-    background-color: #B22222;
+#q {
+    width: 50%; /* 较大的宽度 */
+    padding: 15px 20px; /* 较大的高度，且内边距舒适 */
+    font-size: 1.5em; /* 较大的文字大小 */
+    border: 2px solid #fff; /* 边框 */
+    border-radius: 50px; /* 圆角 */
+    outline: none; /* 移除聚焦时的边框 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 轻微的阴影 */
+    margin-right: 10px; /* 与按钮的间隔 */
+    transition: all 0.3s ease; /* 平滑过渡效果 */
 }
 
-.menu {
-    float: left;
-    color: white;
-    margin-left: 5px;
-    line-height: 40px;
-
-
+#q:focus {
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* 聚焦时增加阴影 */
 }
 
-.login_box {
-    text-align: center;
-    color: white;
-    margin-right: 30px;
-    line-height: 40px;
+#search-button {
+    padding: 15px 20px; /* 高度与输入框匹配 */
+    font-size: 1.5em; /* 大号字体 */
+    border: none; /* 无边框 */
+    border-radius: 50px; /* 圆角 */
+    background-color: #fff; /* 背景颜色 */
+    color: #333; /* 文字颜色 */
+    cursor: pointer; /* 鼠标样式 */
+    transition: all 0.3s ease; /* 平滑过渡效果 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 轻微的阴影 */
+}
+
+#search-button:hover {
+    background-color: #fda085; /* 悬停时的背景颜色变化 */
+    color: #fff; /* 悬停时的文字颜色变化 */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* 悬停时增加阴影 */
 }
 
 .container {
-    margin: 0 5px 0 0;
-    display: inline-block;
-}
-
-
-body {
-    margin: 0;
-
-    background-size: cover;
-    /* 背景图覆盖整个页面 */
-    background-position: center;
-    /* 背景图居中显示 */
-    background-repeat: no-repeat;
-    /* 背景图不重复 */
-
-}
-
-
-.loginborder {
-
-    font-family: '楷体';
-    text-align: center;
-    margin: 3% 20% 0 20%;
-    border: black solid;
-
-}
-
-.motto {
-
-    margin: 5% 0 0 3%;
-    font-size: 135%;
-    font-family: '方正舒体';
-    color: white;
-    font-style: italic;
-
-}
-
-.logo {
-    font-family: '华文中宋';
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
 }
 
+.navbar {
+    background-color: #B22222;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.navbar a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
 .board {
-
-    border: 2px solid white;
+    margin: 0 10%;
+    border: 1px solid black;
     padding: 10px;
-    /* 可根据需要调整内边距 */
-    margin: 5%;
-    height: 95vh;
-    position: relative;
-
+    height: 80vh;
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); /* 现代化渐变背景 */
+    overflow-y: auto;
 
 }
 
-.board.searchbox {
-    position: absolute;
-    top: 2%;
-    left: 3%;
-    right: 3%;
-    height: 20%;
-}
-
-.board.search-form {
-    display: flex;
-    /*align-items: center;*/
-    /*justify-content: center;*/
-    margin-top: 2%;
-
-
-}
-
-.board.search-input {
-    /*padding: 10px;
-       font-size: 16px;
-       border: none;
-       border-radius: 20px;
-       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-       width: 60%;
-       transition: box-shadow 0.3s ease;
-       */
-    width: 23%;
-    /* 调整宽度 */
-    height: 20%;
-    /* 调整高度 */
-    border: 2px solid black;
-    /* 黑色边框 */
+.search-input, .Search-input {
+    width: 100%;
+    margin-bottom: 10px;
     padding: 8px;
-    /* 可选：添加内边距以改善外观 */
-    box-sizing: border-box;
-    /* 使内边距不增加元素的实际尺寸 */
     font-size: 16px;
-    /* 调整字体大小 */
-    outline: none;
-    /* 移除默认的轮廓样式 */
-}
-
-.board.search-input:focus {
-    outline: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid black;
+    box-sizing: border-box;
 }
 
 .search-button {
@@ -141,53 +91,32 @@ body {
     background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 20px;
-    margin-left: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .search-button:hover {
     background-color: #45a049;
-
 }
 
-.srd {
-    transform: scale(1.5);
+.crumb {
+    color: #555; /* 字体颜色 */
+    font-size: 0.85em; /* 字体大小，适当调整 */
+    padding: 5px; /* 内边距 */
+    background-color: #f5f5f5; /* 背景色 */
+    border-radius: 5px; /* 圆角边框 */
+    display: inline-block; /* 行内块显示 */
+    margin: 10px 0; /* 上下边距 */
 }
 
-.scrollable-list {
-    max-height: 75%;
-    overflow-y: auto;
-    margin-top: 2%;
+.crumb p {
+    margin: 0; /* 移除段落默认的上下边距 */
 }
 
-.list-item {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 1%;
-    border-radius: 5px;
-    display: block;
-    justify-content: space-between;
-    align-items: center;
+.crumb-container {
+    text-align: center; /* 居中对齐 */
+    padding: 10px 0; /* 增加顶部和底部的空间 */
 }
 
-.lease-button {
-    padding: 5px 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
 
-.Search-input{
-    width: 23%; /* 调整宽度 */
-    height: 20%; /* 调整高度 */
-    border: 2px solid black; /* 黑色边框 */
-    padding: 8px; /* 可选：添加内边距以改善外观 */
-    box-sizing: border-box; /* 使内边距不增加元素的实际尺寸 */
-    font-size: 16px; /* 调整字体大小 */
-    outline: none; /* 移除默认的轮廓样式 */
-}
 </style>

@@ -28,4 +28,13 @@
     {{#if preload.s}}
     document.getElementById('s').value = "{{preload.s}}";
     {{/if}}
+
+    document.getElementById('toggle-filters').addEventListener('click', function() {
+    var collapsibleFilters = document.getElementById('more-filters');
+    if (collapsibleFilters.style.display === 'none') {
+        collapsibleFilters.style.display = 'block';
+    } else {
+        collapsibleFilters.style.display = 'none';
+    }
+    });
 </script>

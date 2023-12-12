@@ -2,7 +2,12 @@
 <div class="board">
     <div style="font-size: large;">
         <form action="/zufang" method="GET">
-            <div>所属区域: <input type="text" name="q" id="q"></div> <br>
+            <div class="search-container">
+                <input type="text" name="q" id="q" placeholder="请输入搜索内容...">
+                <input class="search-button" type="submit" id="searchinput" value="搜索" style="display: inline-block;">
+            </div>
+            <br>
+            <div id="more-filters" style="display: none;">
             <div>房型: <input type="text" name="f" id="f"></div> <br>
 
             <div> 楼层:
@@ -31,14 +36,15 @@
                 最高价格: <input type="text" name="ep" id="ep"></div><br>
 
             <div>主要设施: <input type="text" name="s" id="s"></div> <br>
+            <button type="button" onclick="clearSelection('srd')">清除选择</button>
+            </div>
 
             <!-- 提交按钮 -->
-            <input class="search-button" type="submit" id="searchinput" value="搜索" style="display: inline-block;">
-            <button type="button" onclick="clearSelection('srd')">清除选择</button>
+            <button type="button" id="toggle-filters">Show/Hide Filters</button>
         </form>
     </div>
 
-    <div id="resultContainer" class="scrollable-list">
+    <div id="scrollable-list" class="scrollable-list">
         {{#each items}}
         <div class='list-item'>
             <p>房源编号: {{{hno}}}</p>
