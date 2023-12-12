@@ -5,8 +5,4 @@ secret_key = "OIXQA1y4NNCFHHy5XuHCZiyzVE/Np6z5PACE+wyTVhw="
 [default.databases.sea_orm]
 # Mysql
 # make sure to enable "sqlx-mysql" feature in Cargo.toml, i.e default = ["sqlx-mysql"]
-url = "mysql://root:Hoyiven231198@127.0.0.1:3306/rocket_example"
-
-# Postgres
-# make sure to enable "sqlx-postgres" feature in Cargo.toml, i.e default = ["sqlx-postgres"]
-# url = "postgres://root:root@localhost/rocket_example"
+url = "sqlite://static/database/db.sqlite?mode=rwc"

@@ -37,4 +37,49 @@
         collapsibleFilters.style.display = 'none';
     }
     });
+
+    function goToPreviousPage() {
+        var url = new URL(window.location.href);
+        var page = parseInt(url.searchParams.get("page"));
+
+        // 如果没有page参数或page为1，则设置page为1
+        if (isNaN(page) || page <= 1) {
+            page = 1;
+        } else {
+            page = page - 1; // 减少页面计数
+        }
+
+        url.searchParams.set("page", page);
+
+        // 重定向到新的URL
+        window.location.href = url.toString();
+    }
+
+    function goToNextPage() {
+        var url = new URL(window.location.href);
+        var page = parseInt(url.searchParams.get("page"));
+
+        // 如果没有page参数，则假设当前是第1页
+        if (isNaN(page)) {
+            page = 1;
+        }
+
+        page = page + 1; // 增加页面计数
+
+        url.searchParams.set("page", page);
+
+        // 重定向到新的URL
+        window.location.href = url.toString();
+    }
+
+    var url = new URL(window.location.href);
+    var page = parseInt(url.searchParams.get("page")) || 1;
+    var maxPage = {{ maxPage }};
+
+    if (page <= 1) {
+        document.getElementById("previousPageButton").disabled = true;
+    }
+    if (page >= maxPage) {
+        document.getElementById("nextPageButton").disabled = true;
+    }
 </script>
