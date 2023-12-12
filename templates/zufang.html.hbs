@@ -1,0 +1,92 @@
+{{#*inline "page"}}
+<div class="board">
+    <div style="font-size: large;">
+        <form action="/zufang" method="GET">
+            <div>所属区域: <input type="text" name="q" id="q"></div> <br>
+            <div>房型: <input type="text" name="f" id="f"></div> <br>
+
+            <div> 楼层:
+                <!-- 为每个radio按钮添加name属性 -->
+                <label><input type="radio" name="c" value="1" class="srd" {{preload.c.[1]}}>底层</label>
+                <label><input type="radio" name="c" value="2" class="srd" {{preload.c.[2]}}>低楼层</label>
+                <label><input type="radio" name="c" value="3" class="srd" {{preload.c.[3]}}>中楼层</label>
+                <label><input type="radio" name="c" value="4" class="srd" {{preload.c.[4]}}>高楼层</label>
+                <label><input type="radio" name="c" value="5" class="srd" {{preload.c.[5]}}>顶层</label>
+            </div>
+
+            <br>
+
+            <div> 面积:
+                <!-- 为每个radio按钮添加name属性 -->
+                <label><input type="radio" name="m" value="1" class="srd" {{preload.a.[1]}}>50m<sup>2</sup>以下</label>
+                <label><input type="radio" name="m" value="2" class="srd" {{preload.a.[2]}}>50-70m<sup>2</sup></label>
+                <label><input type="radio" name="m" value="3" class="srd" {{preload.a.[3]}}>70-90m<sup>2</sup></label>
+                <label><input type="radio" name="m" value="4" class="srd" {{preload.a.[4]}}>90-110m<sup>2</sup></label>
+                <label><input type="radio" name="m" value="5" class="srd" {{preload.a.[5]}}>110-150m<sup>2</sup></label>
+                最小面积: <input type="text" name="bm" id="bm">
+                最大面积: <input type="text" name="em" id="em">
+            </div> <br>
+
+            <div>最低价格: <input type="text" name="bp" id="bp">
+                最高价格: <input type="text" name="ep" id="ep"></div><br>
+
+            <div>主要设施: <input type="text" name="s" id="s"></div> <br>
+
+            <!-- 提交按钮 -->
+            <input class="search-button" type="submit" id="searchinput" value="搜索" style="display: inline-block;">
+            <button type="button" onclick="clearSelection('srd')">清除选择</button>
+        </form>
+    </div>
+
+    <div id="resultContainer" class="scrollable-list">
+        {{#each items}}
+        <div class='list-item'>
+            <p>房源编号: {{{hno}}}</p>
+            <p>区域: {{{hdistrict}}}</p>
+            <p>房源地址: {{{haddr}}}</p>
+            <p>房型: {{{hlo}}}</p>
+            <p>层数: {{{hflr}}}</p>
+            <p>房产面积: {{{harea}}} 平方米</p>
+            <p>主要设施: {{{hequip}}}</p>
+            <p>租赁价格: {{{hprice}}} 元/月</p>
+            <p>房方编号: {{{hlandlore}}}</p>
+            <p>挂租时间: {{{hdate}}}</p>
+            <a href="/detail?hno={{{hno}}}">详情</a>
+        </div>
+        {{/each}}
+    </div>
+</div>
+<script id="mxf">
+    function clearSelection(className) {
+        var checkboxes = document.querySelectorAll('.' + className);
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+        });
+        // redirect to /zufang
+        window.location.href = '/zufang';
+    }
+    {{#if preload.q}}
+    document.getElementById('q').value = "{{preload.q}}";
+    {{/if}}
+    {{#if preload.f}}
+    document.getElementById('f').value = "{{preload.f}}";
+    {{/if}}
+    {{#if preload.bm}}
+    document.getElementById('bm').value = "{{preload.bm}}";
+    {{/if}}
+    {{#if preload.bm}}
+    document.getElementById('em').value = "{{preload.em}}";
+    {{/if}}
+    {{#if preload.bp}}
+    document.getElementById('bp').value = "{{preload.bp}}";
+    {{/if}}
+    {{#if preload.ep}}
+    document.getElementById('ep').value = "{{preload.ep}}";
+    {{/if}}
+    {{#if preload.s}}
+    document.getElementById('s').value = "{{preload.s}}";
+    {{/if}}
+</script>
+{{/inline}}
+
+{{> base}}

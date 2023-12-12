@@ -15,6 +15,7 @@ const AUTHORIZATION: &str = "Authorization";
 
 /// Key used for symmetric token encoding
 const SECRET: &str = "secret";
+pub(super) const JWT_COOKIE_NAME: &str = "jwt";
 
 lazy_static! {
     /// Time before token expires (aka exp claim)
@@ -43,9 +44,9 @@ impl<'r> FromRequest<'r> for Claims {
     type Error = AuthenticationError;
 
     async fn from_request(request: &'r rocket::Request<'_>) -> Outcome<Self, Self::Error> {
-        match request.headers().get_one(AUTHORIZATION) {
-            None => Outcome::Error((Status::Forbidden, AuthenticationError::Missing)),
-            Some(value) => match Claims::from_authorization(value) {
+        match request.cookies().get_private(JWT_COOKIE_NAME) {
+            None => Outcome::Forward(Status::Unauthorized),
+            Some(cookie) => match Claims::from_authorization(cookie.value()) {
                 Err(e) => Outcome::Error((Status::Forbidden, e)),
                 Ok(claims) => Outcome::Success(claims),
             },
@@ -63,14 +64,7 @@ impl Claims {
 
     /// Create a `Claims` from a 'Bearer <token>' value
     fn from_authorization(value: &str) -> Result<Self, AuthenticationError> {
-        let token = value.strip_prefix(BEARER).map(str::trim);
-
-        if token.is_none() {
-            return Err(AuthenticationError::Missing);
-        }
-
-        // Safe to unwrap as we just confirmed it is not none
-        let token = token.unwrap();
+        let token = value.trim();
 
         // Use `jsonwebtoken` to get the claims from a JWT
         // Consult the `jsonwebtoken` documentation for using other algorithms and validations (the default validation just checks the expiration claim)
@@ -111,22 +105,15 @@ impl Claims {
 
 #[cfg(test)]
 mod tests {
-    use crate::claims::AuthenticationError;
+    use crate::api::claims::AuthenticationError;
 
     use super::Claims;
-
-    #[test]
-    fn missing_bearer() {
-        let claim_err = Claims::from_authorization("no-Bearer-prefix").unwrap_err();
-
-        assert_eq!(claim_err, AuthenticationError::Missing);
-    }
 
     #[test]
     fn to_token_and_back() {
         let claim = Claims::from_name("test runner");
         let token = claim.into_token().unwrap();
-        let token = format!("Bearer {token}");
+        let token = format!("{token}");
 
         let claim = Claims::from_authorization(&token).unwrap();
 
