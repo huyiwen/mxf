@@ -1,0 +1,31 @@
+<script id="mxf">
+    function clearSelection(className) {
+        var checkboxes = document.querySelectorAll('.' + className);
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+        });
+        // redirect to /zufang
+        window.location.href = '/zufang';
+    }
+    {{#if preload.q}}
+    document.getElementById('q').value = "{{preload.q}}";
+    {{/if}}
+    {{#if preload.f}}
+    document.getElementById('f').value = "{{preload.f}}";
+    {{/if}}
+    {{#if preload.bm}}
+    document.getElementById('bm').value = "{{preload.bm}}";
+    {{/if}}
+    {{#if preload.bm}}
+    document.getElementById('em').value = "{{preload.em}}";
+    {{/if}}
+    {{#if preload.bp}}
+    document.getElementById('bp').value = "{{preload.bp}}";
+    {{/if}}
+    {{#if preload.ep}}
+    document.getElementById('ep').value = "{{preload.ep}}";
+    {{/if}}
+    {{#if preload.s}}
+    document.getElementById('s').value = "{{preload.s}}";
+    {{/if}}
+</script>

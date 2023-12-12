@@ -13,8 +13,7 @@
       type="text/css"
     />
     <link rel="icon" type="image/png" href="/images/favicon.png" />
-    {{~> style}}
-    {{~> scripts_mxf}}
+    {{> style}}
   </head>
   <body background="/images/Effiel.jpeg">
 
@@ -38,8 +37,9 @@
         </div>
         {{/if}}
 
-        <div class="log">
-            <a style="text-decoration: none;color: white;" href="/index">主页</a>
+        <div class="navbar">
+            <a href="/index">主页</a>
+            <a href="/zufang">租房</a>
         </div>
 
         {{~> page}}
