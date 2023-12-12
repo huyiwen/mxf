@@ -41,7 +41,7 @@ pub(super) struct HouseFilter<'r> {
     #[field(name = "ep")]
     _price_upper: Option<u32>,
 
-    #[field(name = "s")]
+    #[field(name = "s", default = "")]
     _suite: &'r str,
 }
 

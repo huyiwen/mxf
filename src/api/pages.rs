@@ -15,6 +15,11 @@ async fn index(flash: Option<FlashMessage<'_>>) -> Template {
     })
 }
 
+#[get("/index")]
+async fn redirect_index() -> Redirect {
+    Redirect::to(uri!(index))
+}
+
 #[get("/zufang?<house_fliter..>")]
 async fn zufang(house_fliter: HouseFilter<'_>) -> Template {
     Template::render("zufang", context! {
@@ -63,5 +68,5 @@ async fn login_page(flash: Option<FlashMessage<'_>>) -> Template {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![index, zufang, private, no_auth_private, login, login_page]
+    routes![index, redirect_index, zufang, private, no_auth_private, login, login_page]
 }
