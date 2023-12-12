@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+  <head>
+    <meta charset="utf-8"/>
+    <title>{{title}} - 秒X房⚡️房屋租赁系统</title>
+    <meta name="description" content="秒X房⚡️房屋租赁系统" />
+    <meta name="author" content="胡译文" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      href="//fonts.googleapis.com/css?family=Raleway:400,300,600"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+    {{~> style}}
+    {{~> scripts_mxf}}
+  </head>
+  <body background="/images/Effiel.jpeg">
+
+    <!-- Crumb Starts -->
+    {{#if flash}}
+    <small class="field-{{ flash.[0] }}-flash">
+        <p>{{ flash.[1] }}</p>
+    </small>
+    {{/if}}
+    <!-- Crumb Ends -->
+
+    <div class="container">
+
+        {{#if no_motto}}
+        <div style="width:30%;height:auto;display:inline-block;z-index:1;position:absolute;">
+            <img src="/images/flags.gif" style="width:100%;height:auto;">
+        </div>
+
+        <div style="width:20%;margin-left:2%;height:auto;z-index:2;display:inline-block;position:absolute;">
+        <div class="motto">信院出品，必属精品</div>
+        </div>
+        {{/if}}
+
+        <div class="log">
+            <a style="text-decoration: none;color: white;" href="/index">主页</a>
+        </div>
+
+        {{~> page}}
+    </div>
+  </body>
+</html>
