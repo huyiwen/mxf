@@ -121,15 +121,13 @@ impl HouseFilter<'_> {
 
     fn floor_checked(&self) -> Vec<&str> {
         let mut fc = vec![""; Self::FLOORS.len()];
-        if self.floor_lower().is_none() && self.floor_upper().is_none() {
-            fc[self.floor_enum] = Self::CHECKED;
-        }
+        fc[self.floor_enum] = Self::CHECKED;
         fc
     }
 
     fn area_checked(&self) -> Vec<&str> {
         let mut fc = vec![""; Self::AREAS.len()];
-        if self.area_lower().is_none() && self.area_upper().is_none() {
+        if self._area_lower.is_none() && self._area_upper.is_none() {
             fc[self.area_enum] = Self::CHECKED;
         }
         fc
