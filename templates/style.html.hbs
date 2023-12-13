@@ -28,6 +28,17 @@ body, html {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* 聚焦时增加阴影 */
 }
 
+#pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+}
+
+#page-indicator {
+    margin: 0 20px; /* 增加左右边距以分隔元素 */
+}
+
 #search-button {
     padding: 15px 20px; /* 高度与输入框匹配 */
     font-size: 1.5em; /* 大号字体 */
@@ -70,7 +81,7 @@ body, html {
     margin: 0 10%;
     border: 1px solid black;
     padding: 10px;
-    height: 80vh;
+    height: 75vh;
     background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); /* 现代化渐变背景 */
     overflow-y: auto;
 

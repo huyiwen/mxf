@@ -1,0 +1,15 @@
+[package]
+name = "mxf_service"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mxf_entity = { path = "../mxf_entity" }
+async-trait = "0.1.74"
+sea-orm-rocket = { version = "0.5.3" }
+sea-orm = { version = "0.12.6", features = ["runtime-tokio-native-tls", "sqlx-sqlite"] }
+serde = { version = "1.0.148", features = ["derive"] }
+mini-moka = "0.10.2"
+thiserror = "1.0.50"
