@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [workspace]
-members = ['.', 'api', 'service']
+members = ['.', 'mxf_api', 'mxf_entity', 'mxf_service']
 
 [dependencies]
-api = { path = "api" }
+mxf_api = { path = "mxf_api" }
 shuttle-rocket = "0.35.0"
 shuttle-runtime = "0.35.0"

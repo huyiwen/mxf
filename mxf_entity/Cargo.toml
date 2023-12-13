@@ -1,0 +1,12 @@
+[package]
+name = "mxf_entity"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sea-orm = { version = "0.12.6", features = ["runtime-tokio-native-tls", "sqlx-sqlite"] }
+rocket = { version = "0.5.0-rc.4", features = ["json", "secrets"] }
+serde = { version = "1.0.148", features = ["derive"] }
+thiserror = "1.0.50"

@@ -1,4 +1,4 @@
 #[shuttle_runtime::main]
 async fn start() -> shuttle_rocket::ShuttleRocket {
-    Ok(api::main().await.into())
+    Ok(mxf_api::main().await.into())
 }

@@ -74,7 +74,11 @@
 
     var url = new URL(window.location.href);
     var page = parseInt(url.searchParams.get("page")) || 1;
-    var maxPage = {{ maxPage }};
+    {{#if max_page}}
+    var maxPage = {{ max_page }};
+    {{else}}
+    var maxPage = 1;
+    {{/if}}
 
     if (page <= 1) {
         document.getElementById("previousPageButton").disabled = true;
@@ -82,4 +86,5 @@
     if (page >= maxPage) {
         document.getElementById("nextPageButton").disabled = true;
     }
+    document.getElementById("page-indicator").append(page + "/" + maxPage);
 </script>
