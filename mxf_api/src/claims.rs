@@ -40,7 +40,7 @@ impl<'r> FromRequest<'r> for Claims {
         match request.cookies().get_private(JWT_COOKIE_NAME) {
             None => Outcome::Forward(Status::Unauthorized),
             Some(cookie) => match Claims::from_authorization(cookie.value()) {
-                Err(e) => Outcome::Error((Status::Forbidden, e)),
+                Err(e) => Outcome::Forward(Status::Forbidden),
                 Ok(claims) => Outcome::Success(claims),
             },
         }
