@@ -116,7 +116,7 @@
   <p>租赁价格：{{hprice}} 元/月</p>
   <p>房方编号:{{hlandlore}}</p>
   <p>挂租时间:{{hdate}}</p>
-<button class='btn btn-success' onclick='leaseHouse("{{hno}}")'>租赁</button>
+<button class='btn btn-success' onclick='leaseHouse({{hno}})'>租赁</button>
 
   <!-- 在这里可以继续添加其他信息 -->
 
@@ -200,8 +200,7 @@ function getParameterByName(name) {
 
     // 构造数据
     let leaseData = {
-        username: username,
-       Hno:Hno
+        hno: Hno
     };
     console.log(leaseData);
     // 发送 POST 请求
@@ -210,7 +209,8 @@ function getParameterByName(name) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(leaseData)
+        body: JSON.stringify(leaseData),
+        credentials: 'include'
     })
         .then(response => {
             if (!response.ok) {
@@ -225,7 +225,7 @@ function getParameterByName(name) {
         })
         .catch(error => {
             console.error('请求失败:', error);
-            alert('租赁申请失败，请稍后重试。');
+            alert('租赁申请失败，请尝试登录。');
         });
     } else{
         alert('您取消了租赁申请。');

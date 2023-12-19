@@ -1,10 +1,10 @@
-use mxf_entity::errors::JieguoResponse;
 use rocket::http::CookieJar;
 use rocket::response::{Flash, Redirect};
 use rocket::serde::json::Json;
 use rocket::{Route, State};
 use sea_orm_rocket::Connection;
 
+use mxf_entity::errors::JieguoResponse;
 use mxf_entity::{LoginData, RegisterData};
 use mxf_service::UserService;
 

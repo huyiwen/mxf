@@ -8,3 +8,7 @@ pub struct HouseDb(SeaOrmPool);
 #[derive(Database, Debug)]
 #[database("users")]
 pub struct UserDb(SeaOrmPool);
+
+#[derive(Database, Debug)]
+#[database("orders")]
+pub struct OrderDb(SeaOrmPool);
