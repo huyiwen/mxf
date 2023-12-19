@@ -1,53 +1,53 @@
-use rocket::form::Form;
+use mxf_entity::errors::JieguoResponse;
 use rocket::http::CookieJar;
 use rocket::response::{Flash, Redirect};
+use rocket::serde::json::Json;
 use rocket::{Route, State};
 use sea_orm_rocket::Connection;
-use serde::Serialize;
 
-use super::claims::Claims;
+use mxf_entity::{LoginData, RegisterData};
 use mxf_service::UserService;
 
-#[derive(FromForm)]
-struct LoginRequest<'r> {
-    username: &'r str,
-    password: &'r str,
-}
-
-#[derive(Serialize)]
-struct LoginResponse<'r> {
-    token: &'r str,
-}
-
-use super::{claims::JWT_COOKIE_NAME, UserDb};
+use super::claims::{Claims, JWT_COOKIE_NAME};
+use super::UserDb;
 
 /// Tries to authenticate a user. Successful authentications get a JWT
-#[post("/login", data = "<login>")]
+#[post("/login", format = "json", data = "<login>")]
 async fn login(
     jar: &CookieJar<'_>,
     conn: Connection<'_, UserDb>,
     user_service: &State<UserService>,
-    login: Form<LoginRequest<'_>>,
-) -> Result<Redirect, Flash<Redirect>> {
+    login: Json<LoginData<'_>>,
+) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
     let db = conn.into_inner();
 
     user_service
-        .login(db, login.username, login.password)
+        .login(db, &login.0)
         .await
-        .map_err(|e| e.to_redirect(uri!(super::pages::login)))?;
+        .map_err(|e| e.to_json())?;
 
-    let token = match Claims::from_name(&login.username).into_token() {
-        Ok(token) => token,
-        Err(e) => {
-            return Err(Flash::error(
-                Redirect::to(uri!(super::pages::login)),
-                format!("Error creating token: {}", e.1),
-            ));
-        }
-    };
+    let token = Claims::from_name(&login.username)
+        .into_token()
+        .map_err(|e| e.to_json())?;
     jar.add_private((JWT_COOKIE_NAME, token));
 
-    Ok(Redirect::to(uri!(super::pages::index)))
+    Ok(JieguoResponse::success_json())
+}
+
+/// Tries to authenticate a user. Successful authentications get a JWT
+#[post("/register", format = "json", data = "<register>")]
+async fn register(
+    conn: Connection<'_, UserDb>,
+    user_service: &State<UserService>,
+    register: Json<RegisterData<'_>>,
+) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
+    let db = conn.into_inner();
+
+    user_service
+        .register(db, &register.0)
+        .await
+        .map(|_| JieguoResponse::success_json())
+        .map_err(|e| e.to_json())
 }
 
 #[post("/logout")]
@@ -60,5 +60,5 @@ async fn logout(jar: &CookieJar<'_>) -> Flash<Redirect> {
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![login, logout]
+    routes![login, register, logout]
 }

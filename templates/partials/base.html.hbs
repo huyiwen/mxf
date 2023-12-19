@@ -12,28 +12,29 @@
       rel="stylesheet"
       type="text/css"
     />
-    {{> load_image}}
+    {{> partials/load_image}}
     <link rel="icon" type="image/png" href="/images/favicon.png" />
-    {{> style}}
+    {{> partials/style}}
   </head>
   <body>
     <img id="background-img" src="" onerror="loadImg(this)" lsrc="/images/Effiel.jpeg" width="100%" height="1000px" style="object-fit: cover;">
 
     <div class="container" style="position: absolute; top: 0; left: 0;">
 
-        {{#if no_motto}}
+        {{#unless no_motto}}
         <div style="width:30%;height:auto;display:inline-block;z-index:1;position:absolute;">
-            <img src="" onerror="loadImg(this)" lsrc="/images/flags.gif" style="width:100%;height:auto;">
+            <img src="" onerror="loadImg(this)" lsrc="/images/flags.gif" width="100%" height="auto" style="position:absolute;">
         </div>
 
-        <div style="width:20%;margin-left:2%;height:auto;z-index:2;display:inline-block;position:absolute;">
-        <div class="motto">信院出品，必属精品</div>
+        <div style="width:20%;margin-left:2%;height:auto;z-index:2;display:inline-block;position:absolute;margin-top: 1%;">
+        <div class="motto" style="font-size: x-large;">信院出品，必属精品</div>
         </div>
-        {{/if}}
+        {{/unless}}
 
         <div class="navbar">
             <a href="/index">主页</a>
             <a href="/zufang">租房</a>
+            <a href="/login">登录</a>
         </div>
 
         <div class="crumb-container">

@@ -13,3 +13,7 @@ sea-orm = { version = "0.12.6", features = ["runtime-tokio-native-tls", "sqlx-sq
 serde = { version = "1.0.148", features = ["derive"] }
 mini-moka = "0.10.2"
 thiserror = "1.0.50"
+rsa = { version = "0.9.6", features = ["pem"] }
+rand = "0.8.5"
+chrono = "0.4.23"
+lazy_static = "1.4.0"
