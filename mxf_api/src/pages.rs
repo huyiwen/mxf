@@ -55,7 +55,7 @@ async fn zufang(
 #[get("/detail?<hno>")]
 async fn detail(
     conn: Connection<'_, HouseDb>,
-    hno: Option<u8>,
+    hno: Option<u32>,
     house_service: &State<HouseService>,
 ) -> Result<Template, Flash<Redirect>> {
     if hno.is_none() {

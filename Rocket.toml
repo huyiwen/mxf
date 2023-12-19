@@ -4,4 +4,5 @@ secret_key = "OIXQA1y4NNCFHHy5XuHCZiyzVE/Np6z5PACE+wyTVhw="
 
 [default.databases]
 house_listings = { url = "sqlite://static/database/house_listings.sqlite?mode=rw" }
-users = { url = "sqlite://static/database/users.sqlite?mode=rwc" }
+users = { url = "sqlite://static/database/users.sqlite?mode=rw" }
+orders = { url = "sqlite://static/database/orders.sqlite?mode=rw" }

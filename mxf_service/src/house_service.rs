@@ -19,7 +19,7 @@ impl HouseService {
     pub async fn find_house_by_id(
         &self,
         db: &DbConn,
-        hno: u8,
+        hno: u32,
     ) -> Result<HouseListingModel, MXFError> {
         HouseListingEntity::find_by_id(hno)
             .one(db)

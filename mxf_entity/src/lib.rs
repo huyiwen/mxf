@@ -4,11 +4,13 @@ extern crate rocket;
 pub mod errors;
 pub mod house_filter;
 pub mod house_listing;
+pub mod order_data;
 pub mod session_data;
 pub mod user;
 
 pub use errors::MXFError;
 pub use house_filter::HouseFilter;
+pub use order_data::LeaseData;
 pub use session_data::{LoginData, RegisterData};
 
 pub use house_listing::ActiveModel as HouseListingActiveModel;
