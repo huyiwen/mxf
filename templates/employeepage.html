@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1 , user-scalable=no">
+  <title>员工页面</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="css/bootstrap-maizi.css"/>
+  <link rel="stylesheet" href="css/content-style.css"/>
+  <link rel="stylesheet" href="css/mricode.pagination.css"/>
+</head>
+<body>
+<!--导航-->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <!--小屏幕导航按钮和logo-->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a  class="navbar-brand"> 房屋租赁系统</a>
+    </div>
+    <!--小屏幕导航按钮和logo-->
+    <!--导航-->
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <!--
+        <li><a href="index.html"><span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;后台首页</a></li>
+        <li class="active"><a href="user.html"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;用户管理</a></li>
+        <li><a href="machine.html"><span class="glyphicon glyphicon-expand"></span>&nbsp;&nbsp;机器管理</a></li>
+        <li><a href="service.html"><span class="glyphicon glyphicon-tasks"></span>&nbsp;&nbsp;服务管理</a></li>
+        <li><a href="log.html"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;日志管理</a></li>
+        <li><a href="wiki.html"><span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;使用文档</a></li>
+        -->
+    </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+         <!--
+          <a id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            admin
+            <span class="caret"></span>
+          </a>
+    
+          <ul class="dropdown-menu" aria-labelledby="dLabel">
+            <li><a href="index.html"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;个人设置</a></li>
+          </ul>
+        </li>
+    -->
+    <li><a onclick="logoff()"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;注销</a></li>
+        <li><a href="./login.html"><span class="glyphicon glyphicon-off"></span>&nbsp;&nbsp;退出</a></li>
+      </ul>
+    </div>
+    <!--导航-->
+  </div>
+</nav>
+<!--导航-->
+
+
+<script type="text/x-handlebars-template" id="template">
+<div id="out" style="display: block;">
+    <h3 style="margin-left: 10%;">目前待审批的租赁请求为：</h3>
+    <br>
+<div class="panel panel-default" style="margin: 0 10% 0 10%;">
+    
+    <div class="table-responsive">
+      <table class="table table-bordered" >
+        <thead>
+        <tr>
+          <th class="w5p">租户名</th>
+          <th class="w10p">房源编号</th>
+          <th class="w10p">房方编号</th>
+          <th class="w10p">租赁价格</th>
+          <th class="w10p">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+            {{#each data}}
+        <tr>
+          <td class="center">{{name}}</td>
+          <td class="center">{{Hno}}</td>
+          <td class="center">{{Hlandlore}}</td>
+          <td class="center">{{HRentPrice}}</td>
+          
+          <td class="center">
+            <a data-link="service_config.html" name="consumer_list" onclick='admit("{{name}}","{{Hno}}")'><i class="glyphicon glyphicon-ok"></i>审批通过</a>
+            <a data-link="service_config.html" name="consumer_list" onclick='reject("{{name}}","{{Hno}}")''><i class="glyphicon glyphicon-remove"></i>不通过</a>
+            
+          </td>
+        </tr>
+        </tbody>
+        {{/each}}
+      </table>
+    </div>
+</div>
+</script>
+
+
+<script src="js/plugins/jquery/jquery.js"></script>
+
+<script src="js/bootstrap.min.js"></script>
+<script src="js/plugins/pagination/mricode.pagination.js"></script>
+<script src="js/common/common.js"></script>
+<script type="text/javascript">
+  var pageData = [];
+  pageData.push({'pageSize': '10', 'total': '1000', 'pageIndex': '2'});
+  Common.paginator("#paginator", pageData);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.min.js"></script>
+
+<script>
+function getParameterByName(name) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(window.location.href);
+    if (!results) return null;
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  // 在页面加载时获取 URL 参数
+  document.addEventListener("DOMContentLoaded", function () {
+    let username = getParameterByName("username");
+    console.log(username);
+    //let phoneNumber = getParameterByName("phoneNumber");
+
+    // 在这里可以使用 username 和 phoneNumber 进行相关操作，例如显示在页面上
+    if (username ) {
+      alert("欢迎用户：" + username );
+    }
+  });
+
+  let username=getParameterByName("username");
+
+        let data = {
+            username:username
+        };
+
+
+        
+        
+
+        // 发送 POST 请求
+        fetch('http://127.0.0.1:5000/test/houseinfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('HTTP 状态码:', response.status);
+            if (!response.ok) {
+                throw new Error('网络请求失败');
+                
+            }
+            return response.json();
+        })
+        .then(data=> {
+            console.log('请求成功:', data);
+            // 在这里可以根据后端返回的数据执行适当的操作
+            
+      
+       
+            var template = document.getElementById('template').innerHTML;
+            //console.log('模板内容：', template);
+            var fuc = Handlebars.compile(template); //使用handlebars对转换后的html字符串进行编译，f是函数
+            var element = fuc(data);
+            //console.log('转换后内容：', element);
+            let div = document.createElement('DIV')
+            div.innerHTML = element;
+            document.body.appendChild(div);
+        })
+    .catch(error => {
+        console.error('请求失败:', error);
+        // 在这里可以处理请求失败的情况
+        return;
+    });
+       
+function reject(name,Hno) {
+        // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
+        let  confirmLease = confirm("确定不通过此审批吗?");
+        if (confirmLease){
+    
+        let username = getParameterByName("username");
+    
+        // 构造数据
+        let data= {
+            tenantname:name,
+            Hno:Hno,
+          
+        };
+        console.log(data);
+        // 发送 POST 请求
+        fetch('http://127.0.0.1:5000/test/admit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('请求失败');
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log('请求成功:', responseData);
+                alert('成功拒绝此租赁请求！');
+              
+            })
+            .catch(error => {
+                console.error('请求失败:', error);
+                alert('拒绝审批失败，请稍后重试。');
+            });
+        } else{
+            alert('您取消了此操作。');
+        }
+    }
+    
+
+    function admit(name,Hno) {
+        // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
+        let  confirmLease = confirm("确定通过此审批吗?");
+        if (confirmLease){
+    
+        let username = getParameterByName("username");
+    
+        // 构造数据
+        let data= {
+            tenantname:name,
+            Hno:Hno,
+          
+        };
+        console.log(data);
+        // 发送 POST 请求
+        fetch('http://127.0.0.1:5000/test/admit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('请求失败');
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log('请求成功:', responseData);
+                alert('成功审批此租赁请求！');
+                
+            })
+            .catch(error => {
+                console.error('请求失败:', error);
+                alert('通过审批失败，请稍后重试。');
+            });
+        } else{
+            alert('您取消了此操作。');
+        }
+    }
+    
+    function logoff()
+{
+    let  confirmLease = confirm("确定要注销此账号吗?此操作不可恢复");
+    if (confirmLease){
+
+    let username = getParameterByName("username");
+
+    // 构造数据
+    let Data = {
+        username: username,
+       
+    };
+    console.log(Data);
+    // 发送 POST 请求
+    fetch('http://127.0.0.1:5000/test/logoff', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('请求失败');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            console.log('请求成功:', responseData);
+            alert('注销账号成功！');
+            window.location.href = "./login.html";
+
+        })
+        .catch(error => {
+            console.error('请求失败:', error);
+            alert('注销账号失败，请稍后重试。');
+        });
+    } else{
+        alert('您取消了此操作。');
+    }
+}
+    
+
+
+
+    
+</script>
+</body>
+</html>

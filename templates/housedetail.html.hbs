@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1 , user-scalable=no">
+  <title>房源查询结果</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="css/bootstrap-maizi.css"/>
+  <link rel="stylesheet" href="css/content-style.css"/>
+  <link rel="stylesheet" href="css/mricode.pagination.css"/>
+</head>
+<style>
+
+ .containert {
+
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h3{
+      color: #333;
+    }
+
+    .info {
+      margin-top: 20px;
+    }
+
+    .info label {
+      font-size: large;
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .info p {
+      font-size: large;
+      margin: 0;
+      color: #555;
+    }
+</style>
+<body>
+<!--导航-->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <!--小屏幕导航按钮和logo-->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a  class="navbar-brand"> 房屋租赁系统</a>
+    </div>
+    <!--小屏幕导航按钮和logo-->
+    <!--导航-->
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <!--
+        <li><a href="index.html"><span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;后台首页</a></li>
+        <li class="active"><a href="user.html"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;用户管理</a></li>
+        <li><a href="machine.html"><span class="glyphicon glyphicon-expand"></span>&nbsp;&nbsp;机器管理</a></li>
+        <li><a href="service.html"><span class="glyphicon glyphicon-tasks"></span>&nbsp;&nbsp;服务管理</a></li>
+        <li><a href="log.html"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;日志管理</a></li>
+        <li><a href="wiki.html"><span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;使用文档</a></li>
+        -->
+    </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+         <!--
+          <a id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            admin
+            <span class="caret"></span>
+          </a>
+
+          <ul class="dropdown-menu" aria-labelledby="dLabel">
+            <li><a href="index.html"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;个人设置</a></li>
+          </ul>
+        </li>
+    -->
+
+        <!--<li><a href="./login.html"><span class="glyphicon glyphicon-off"></span>&nbsp;&nbsp;退出</a></li> -->
+      </ul>
+    </div>
+    <!--导航-->
+  </div>
+</nav>
+<!--导航-->
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <!--<div class="panel-body" style="padding: 15px 0;"> <-->
+
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/x-handlebars-template" id="template">
+<div class="containert">
+  <h3>此房屋详情如下：</h3>
+
+  <div class="info">
+   <p>房源编号：{{hno}}</p>
+  <p>区域: {{hdistrict}}</p>
+  <p>房源地址: {{haddr}}</p>
+  <p>房型:{{hlo}}</p>
+  <p>层数:{{hflr}}</p>
+  <p>房产面积:{{harea}} 平方米</p>
+  <p>主要设施:{{hequip}}</p>
+  <p>租赁价格：{{hprice}} 元/月</p>
+  <p>房方编号:{{hlandlore}}</p>
+  <p>挂租时间:{{hdate}}</p>
+<button class='btn btn-success' onclick='leaseHouse("{{hno}}")'>租赁</button>
+
+  <!-- 在这里可以继续添加其他信息 -->
+
+</div>
+</div>
+</script>
+
+<script src="js/plugins/jquery/jquery.js"></script>
+
+<script src="js/bootstrap.min.js"></script>
+<script src="js/plugins/pagination/mricode.pagination.js"></script>
+<script src="js/common/common.js"></script>
+<script type="text/javascript">
+  var pageData = [];
+  pageData.push({'pageSize': '10', 'total': '1000', 'pageIndex': '2'});
+  Common.paginator("#paginator", pageData);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.min.js"></script>
+
+<script>
+function getParameterByName(name) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(window.location.href);
+    if (!results) return null;
+    if (!results[2]) return "";
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  // 在页面加载时获取 URL 参数
+  document.addEventListener("DOMContentLoaded", function () {
+    let username = getParameterByName("username");
+    console.log(username);
+    //let phoneNumber = getParameterByName("phoneNumber");
+
+
+  });
+
+  let results= {
+
+      Hno: getParameterByName("Hno"),
+      Hdistrict: getParameterByName("Hdistrict"),
+      Haddr: getParameterByName("Haddr"),
+      Hlo: getParameterByName("Hlo"),
+      Hflr: getParameterByName("Hflr"),
+      Harea: getParameterByName("Harea"),
+      Hequip: getParameterByName("Hequip"),
+      HRentPrice: getParameterByName("HRentPrice"),
+      Hlandlore: getParameterByName("Hlandlore"),
+      Hdate: getParameterByName("Hdate"),
+    };
+    console.log(results);
+         //通过模板定义的id获取模板
+
+  /*
+    var tpl = $("#template").html();
+    //预编译模板
+   var template = Handlebars.compile(tpl);
+    //传入需要填充的数据匹配
+    var html = template(results);
+    //插入模板到ul中
+    $("#template").html(html);
+    */
+
+    var template = document.getElementById('template').innerHTML;
+    //console.log('模板内容：', template);
+    var fuc = Handlebars.compile(template); //使用handlebars对转换后的html字符串进行编译，f是函数
+    var element = fuc(results);
+    //console.log('转换后内容：', element);
+    let div = document.createElement('DIV')
+    div.innerHTML = element;
+    document.body.appendChild(div);
+
+    function leaseHouse(Hno) {
+    // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
+    let  confirmLease = confirm("确定要租赁吗?");
+    if (confirmLease){
+
+    let username = getParameterByName("username");
+
+    // 构造数据
+    let leaseData = {
+        username: username,
+       Hno:Hno
+    };
+    console.log(leaseData);
+    // 发送 POST 请求
+    fetch('/lease', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(leaseData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('请求失败');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            console.log('请求成功:', responseData);
+            alert('租赁申请成功！');
+            //window.location.href="./tenantpage.html";
+        })
+        .catch(error => {
+            console.error('请求失败:', error);
+            alert('租赁申请失败，请稍后重试。');
+        });
+    } else{
+        alert('您取消了租赁申请。');
+    }
+}
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

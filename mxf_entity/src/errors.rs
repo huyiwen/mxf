@@ -1,26 +1,58 @@
-use rocket::{
-    http::uri::Reference,
-    response::{Flash, Redirect},
-};
+use jsonwebtoken;
+use pkcs8;
+use rocket::http::uri::Reference;
+use rocket::response::{Flash, Redirect};
+use rocket::serde::json::Json;
+use rocket::serde::Serialize;
 use sea_orm::DbErr;
 use thiserror::Error;
+
+#[derive(Serialize)]
+pub struct JieguoResponse {
+    pub jieguo: bool,
+    pub reason: Option<String>,
+}
+
+impl JieguoResponse {
+    pub fn success_json() -> Json<Self> {
+        Json(Self {
+            jieguo: true,
+            reason: None,
+        })
+    }
+}
 
 #[derive(Error, Debug)]
 pub enum MXFError {
     #[error("database error")]
     DatabaseError(#[from] DbErr),
 
-    #[error("creating token error")]
-    TokenError(String),
+    #[error("jwt error")]
+    JWTError(#[from] jsonwebtoken::errors::Error),
 
-    #[error("user not found")]
+    #[error("failed to create rsa key")]
+    RSACreationError(#[from] pkcs8::spki::Error),
+
+    #[error("failed to decode with rsa")]
+    RSADecryptionError(#[from] rsa::Error),
+
+    #[error("user not found: {}", .0)]
     UserNotFound(String),
 
+    #[error("invalid user type: {}", .0)]
+    InvalidUserType(String),
+
     #[error("wrong password")]
-    WrongPassword(String),
+    WrongPassword(()),
+
+    #[error("user already exists: {}", .0)]
+    UserAlreadyExists(String),
 
     #[error("cache error")]
-    CacheError(String),
+    CacheError(Option<String>),
+
+    #[error("unknown error")]
+    UnknownError(String),
 }
 
 impl MXFError {
@@ -28,18 +60,15 @@ impl MXFError {
     where
         U: TryInto<Reference<'static>>,
     {
+        println!("error: {}", self.to_string());
         Flash::error(Redirect::to(path), self.to_string())
     }
 
-    pub fn user_not_found() -> Self {
-        MXFError::UserNotFound("user not found".into())
-    }
-
-    pub fn wrong_password() -> Self {
-        MXFError::WrongPassword("wrong password".into())
-    }
-
-    pub fn cache_error() -> Self {
-        MXFError::CacheError("cache error".into())
+    pub fn to_json(&self) -> Json<JieguoResponse> {
+        println!("error: {}", self.to_string());
+        Json(JieguoResponse {
+            jieguo: false,
+            reason: Some(self.to_string()),
+        })
     }
 }

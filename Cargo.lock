@@ -1699,7 +1699,10 @@ dependencies = [
 name = "mxf_entity"
 version = "0.1.0"
 dependencies = [
+ "jsonwebtoken",
+ "pkcs8",
  "rocket",
+ "rsa",
  "sea-orm",
  "serde",
  "thiserror",
@@ -1710,8 +1713,12 @@ name = "mxf_service"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "chrono",
+ "lazy_static",
  "mini-moka",
  "mxf_entity",
+ "rand",
+ "rsa",
  "sea-orm",
  "sea-orm-rocket",
  "serde",

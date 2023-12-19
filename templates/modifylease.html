@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1 , user-scalable=no">
+  <title>拒绝并修改租赁信息</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="css/bootstrap-maizi.css"/>
+  <link rel="stylesheet" href="css/content-style.css"/>
+  <link rel="stylesheet" href="css/mricode.pagination.css"/>
+</head>
+<style>
+ 
+ .containert {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden; /* 避免子元素溢出 */
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .info {
+      flex: 0 0 48%;
+    }
+
+    .input-container {
+      flex: 0 0 48%;
+    }
+
+    h3 {
+      color: #333;
+    }
+
+    .info label, .input-container label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .info p, .input-container input {
+      margin: 0;
+      color: #555;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      /*border: 1px solid #ccc;*/
+      border-radius: 4px;
+    }
+
+    input[type="button"] {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type="button"]:hover {
+      background-color: #45a049;
+    }
+</style>
+<body>
+<!--导航-->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container">
+    <!--小屏幕导航按钮和logo-->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a  class="navbar-brand"> 房屋租赁系统</a>
+    </div>
+    <!--小屏幕导航按钮和logo-->
+    <!--导航-->
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <!--
+        <li><a href="index.html"><span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;后台首页</a></li>
+        <li class="active"><a href="user.html"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;用户管理</a></li>
+        <li><a href="machine.html"><span class="glyphicon glyphicon-expand"></span>&nbsp;&nbsp;机器管理</a></li>
+        <li><a href="service.html"><span class="glyphicon glyphicon-tasks"></span>&nbsp;&nbsp;服务管理</a></li>
+        <li><a href="log.html"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;日志管理</a></li>
+        <li><a href="wiki.html"><span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;使用文档</a></li>
+        -->
+    </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+         <!--
+          <a id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            admin
+            <span class="caret"></span>
+          </a>
+    
+          <ul class="dropdown-menu" aria-labelledby="dLabel">
+            <li><a href="index.html"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;个人设置</a></li>
+          </ul>
+        </li>
+    -->
+    
+        <!--<li><a href="./residentpage.html"><span class="glyphicon glyphicon-off"></span>&nbsp;&nbsp;返回</a></li><-->
+      </ul>
+    </div>
+    <!--导航-->
+  </div>
+</nav>
+<!--导航-->
+
+
+
+  
+
+<script type="text/x-handlebars-template" id="template">
+
+<div class="containert">
+    <h3>此租赁请求详情如下：</h3>
+    
+    <div class="row">
+        <div class="info">
+          <label>租户名：</label>
+          <p>{{tenantname}}</p>
+        </div>
+        <div class="input-container"> </div>
+    </div>
+    <div class="row">
+      <div class="info">
+        <label>房源编号：</label>
+        <p>{{Hno}}</p>
+      </div>
+      <div class="input-container"> </div>
+
+    </div>
+    <div class="row">
+      <div class="info">
+        <label>区域：</label>
+        <p>{{Hdistrict}}</p>
+      </div>
+  
+      <div class="input-container">
+        <label>修改区域：</label>
+        <input type="text" placeholder="请输入目标区域，空值默认不修改" id="Hdistrict_m">
+      </div>
+    </div>
+  
+    
+      <div class="row">
+        <div class="info">
+          <label>房源地址：</label>
+          <p>{{Haddr}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改房源地址：</label>
+          <input type="text" placeholder="请输入目标房源地址，空值默认不修改" id="Haddr_m">
+        </div>
+      </div>
+      <div class="row">
+        <div class="info">
+          <label>房型：</label>
+          <p>{{Hlo}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改房型：</label>
+          <input type="text" placeholder="请输入目标房型，空值默认不修改" id="Hlo_m">
+        </div>
+      </div>
+      <div class="row">
+        <div class="info">
+          <label>层数：</label>
+          <p>{{Hflr}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改层数：</label>
+          <input type="text" placeholder="请输入目标层数，空值默认不修改" id="Hflr_m">
+        </div>
+      </div>
+      <div class="row">
+        <div class="info">
+          <label>房产面积：</label>
+          <p>{{Harea}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改房产面积：</label>
+          <input type="text" placeholder="请输入目标房产面积，空值默认不修改" id="Harea_m">
+        </div>
+      </div>
+      <div class="row">
+        <div class="info">
+          <label>主要设施：</label>
+          <p>{{Hequip}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改主要设施：</label>
+          <input type="text" placeholder="请输入目标主要设施，空值默认不修改" id="Hequip_m">
+        </div>
+      </div>
+      <div class="row">
+        <div class="info">
+          <label>租赁价格：</label>
+          <p>{{HRentPrice}}</p>
+        </div>
+    
+        <div class="input-container">
+          <label>修改租赁价格：</label>
+          <input type="text" placeholder="请输入目标租赁价格，空值默认不修改" id="HRentPrice_m">
+        </div>
+      </div>
+  
+    <div class="row">
+        <div class="info"></div>
+      <div class="input-container">
+        <input type="button" value="提交" onclick="ModifyLease()">
+      </div>
+    </div>
+  </div>
+</script>
+
+<script src="js/plugins/jquery/jquery.js"></script>
+
+<script src="js/bootstrap.min.js"></script>
+<script src="js/plugins/pagination/mricode.pagination.js"></script>
+<script src="js/common/common.js"></script>
+<script type="text/javascript">
+  var pageData = [];
+  pageData.push({'pageSize': '10', 'total': '1000', 'pageIndex': '2'});
+  Common.paginator("#paginator", pageData);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.min.js"></script>
+
+<script>
+ function getParameterByName(name) {
+      name = name.replace(/[\[\]]/g, "\\$&");
+      let regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(window.location.href);
+      if (!results) return null;
+      if (!results[2]) return "";
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    // 使用获取到的参数渲染 Handlebars 模板
+    let results= {
+      tenantname:getParameterByName("tenantname"),
+      Hno: getParameterByName("Hno"),
+      Hdistrict: getParameterByName("Hdistrict"),
+      Haddr: getParameterByName("Haddr"),
+      Hlo: getParameterByName("Hlo"),
+      Hflr: getParameterByName("Hflr"),
+      Harea: getParameterByName("Harea"),
+      Hequip: getParameterByName("Hequip"),
+      HRentPrice: getParameterByName("HRentPrice"),
+      Hlandlore: getParameterByName("Hlandlore"),
+      Hdate: getParameterByName("Hdate"),
+    };
+    console.log(results);
+         //通过模板定义的id获取模板
+
+  /*
+    var tpl = $("#template").html();
+    //预编译模板
+   var template = Handlebars.compile(tpl);
+    //传入需要填充的数据匹配
+    var html = template(results);
+    //插入模板到ul中
+    $("#template").html(html);
+    */
+   
+    var template = document.getElementById('template').innerHTML;
+    //console.log('模板内容：', template);
+    var fuc = Handlebars.compile(template); //使用handlebars对转换后的html字符串进行编译，f是函数
+    var element = fuc(results);
+    //console.log('转换后内容：', element);
+    let div = document.createElement('DIV')
+    div.innerHTML = element;
+    document.body.appendChild(div);
+     
+    function edit(button)
+    {
+        /*
+        let listItem = button.closest('.list-item');
+    // 找到 list-item 下的输入框
+    let inputFields = listItem.querySelectorAll('.hidden-input-field');
+    // 切换所有输入框的显示与隐藏状态
+    inputFields.forEach(function(inputField) {
+        inputField.classList.toggle('show-input');
+    });
+    modifybutton.style="display:block";
+    */
+     modify.style="display:block";
+
+    }
+    function ModifyLease() {
+    // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
+    let  confirmLease = confirm("确定提交编辑吗?");
+    if (confirmLease){
+
+    let username = getParameterByName("username");
+
+    // 构造数据
+    let data= {
+      username:username,
+      Hno:  getParameterByName("Hno"),
+      Hdistrict: document.getElementById("Hdistrict_m").value,
+      Haddr: document.getElementById("Haddr_m").value,
+      Hlo: document.getElementById("Hlo_m").value,
+      Hflr: document.getElementById("Hflr_m").value,
+      Harea: document.getElementById("Harea_m").value,
+      Hequip: document.getElementById("Hequip_m").value,
+      HRentPrice: document.getElementById("HRentPrice_m").value,
+      
+    };
+    console.log(data);
+    // 发送 POST 请求
+    fetch('http://127.0.0.1:5000/test/lease', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('提交编辑请求失败');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            console.log('提交编辑成功:', responseData);
+            alert('提交编辑成功！');
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('提交编辑失败:', error);
+            alert('提交编辑失败，请稍后重试。');
+        });
+    } else{
+        alert('您取消了提交编辑。');
+    }
+}
+
+
+
+
+
+    
+</script>
+</body>
+</html>

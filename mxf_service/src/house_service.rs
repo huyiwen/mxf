@@ -20,8 +20,14 @@ impl HouseService {
         &self,
         db: &DbConn,
         hno: u8,
-    ) -> Result<Option<HouseListingModel>, DbErr> {
-        HouseListingEntity::find_by_id(hno).one(db).await
+    ) -> Result<HouseListingModel, MXFError> {
+        HouseListingEntity::find_by_id(hno)
+            .one(db)
+            .await?
+            .ok_or(MXFError::UnknownError(format!(
+                "House with hno {} not found",
+                hno
+            )))
     }
 
     /// If ok, returns (post models, num pages).

@@ -2,9 +2,9 @@ use chrono::{Duration, Utc};
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use lazy_static::lazy_static;
+use mxf_entity::{MXFError, UserModel};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome};
-use rocket::response::status::Custom;
 use serde::{Deserialize, Serialize};
 
 /// Key used for symmetric token encoding
@@ -28,6 +28,7 @@ pub(crate) enum AuthenticationError {
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct Claims {
     pub(crate) name: String,
+    pub(crate) user: UserModel,
     exp: usize,
 }
 
@@ -40,7 +41,7 @@ impl<'r> FromRequest<'r> for Claims {
         match request.cookies().get_private(JWT_COOKIE_NAME) {
             None => Outcome::Forward(Status::Unauthorized),
             Some(cookie) => match Claims::from_authorization(cookie.value()) {
-                Err(e) => Outcome::Forward(Status::Forbidden),
+                Err(_e) => Outcome::Forward(Status::Forbidden),
                 Ok(claims) => Outcome::Success(claims),
             },
         }
@@ -51,6 +52,7 @@ impl Claims {
     pub(crate) fn from_name(name: &str) -> Self {
         Self {
             name: name.to_string(),
+            user: UserModel::default(),
             exp: 0,
         }
     }
@@ -75,7 +77,7 @@ impl Claims {
     }
 
     /// Converts this claims into a token string
-    pub(crate) fn into_token(mut self) -> Result<String, Custom<String>> {
+    pub(crate) fn into_token(mut self) -> Result<String, MXFError> {
         let expiration = Utc::now()
             .checked_add_signed(*TOKEN_EXPIRATION)
             .expect("failed to create an expiration time")
@@ -89,8 +91,7 @@ impl Claims {
             &Header::default(),
             &self,
             &EncodingKey::from_secret(SECRET.as_ref()),
-        )
-        .map_err(|e| Custom(Status::BadRequest, e.to_string()))?;
+        )?;
 
         Ok(token)
     }
