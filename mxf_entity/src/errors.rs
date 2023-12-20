@@ -51,6 +51,9 @@ pub enum MXFError {
     #[error("cache error")]
     CacheError(Option<String>),
 
+    #[error("house unavailable")]
+    HouseUnavailable(u32),
+
     #[error("unknown error")]
     UnknownError(String),
 }

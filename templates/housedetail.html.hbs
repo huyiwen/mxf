@@ -54,7 +54,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a  class="navbar-brand"> 房屋租赁系统</a>
+      <a  class="navbar-brand" href="/zufang"> 房屋租赁系统</a>
     </div>
     <!--小屏幕导航按钮和logo-->
     <!--导航-->
@@ -219,13 +219,20 @@ function getParameterByName(name) {
             return response.json();
         })
         .then(responseData => {
-            console.log('请求成功:', responseData);
-            alert('租赁申请成功！');
-            //window.location.href="./tenantpage.html";
+            if (responseData.jieguo == true) {
+                console.log('请求成功:', responseData);
+                alert('租赁申请成功！');
+                //window.location.href="./tenantpage.html";
+            } else {
+                console.log('请求失败:', responseData);
+                alert('租赁申请失败，请检查该房源未出租。');
+            }
         })
         .catch(error => {
             console.error('请求失败:', error);
             alert('租赁申请失败，请尝试登录。');
+            new Promise(r => setTimeout(r, 2000));
+            window.location.href="/login";
         });
     } else{
         alert('您取消了租赁申请。');

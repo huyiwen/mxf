@@ -16,7 +16,7 @@ impl HouseService {
         return HouseService { num_pages_cache };
     }
 
-    pub async fn find_house_by_id(
+    pub async fn get_house_by_hno(
         &self,
         db: &DbConn,
         hno: u32,
