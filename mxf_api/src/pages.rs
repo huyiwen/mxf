@@ -1,13 +1,14 @@
 use chrono;
+use mxf_entity::user::UserType;
 use rocket::request::FlashMessage;
 use rocket::response::{Flash, Redirect};
 use rocket::{Route, State};
 use rocket_dyn_templates::{context, Template};
 use sea_orm_rocket::Connection;
 
-use super::{Claims, HouseDb};
+use super::{Claims, HouseDb, OrderDb};
 use mxf_entity::HouseFilter;
-use mxf_service::{HouseService, UserService};
+use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
 
@@ -54,16 +55,22 @@ async fn zufang(
 
 #[get("/detail?<hno>")]
 async fn detail(
-    conn: Connection<'_, HouseDb>,
     hno: Option<u32>,
+    user: Option<Claims>,
+    house_conn: Connection<'_, HouseDb>,
     house_service: &State<HouseService>,
+    order_conn: Connection<'_, OrderDb>,
+    order_service: &State<OrderService>,
 ) -> Result<Template, Flash<Redirect>> {
     if hno.is_none() {
         return Err(Flash::error(Redirect::to("/zufang"), "房屋编号不能为空"));
     }
-    let db = conn.into_inner();
     let house = house_service
-        .get_house_by_hno(db, hno.unwrap())
+        .get_house_by_hno(house_conn.into_inner(), hno.unwrap())
+        .await
+        .map_err(|e| e.to_redirect("/zufang"))?;
+    let orders = order_service
+        .get_orders_by_hno(order_conn.into_inner(), hno.unwrap(), false)
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     Ok(Template::render(
@@ -80,6 +87,8 @@ async fn detail(
             hprice: house.hprice,
             hlandlore: house.hlandlore,
             hdate: chrono::NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
+            orders: orders,
+            is_admin: user.map(|u| u.user.utype != UserType::User).unwrap_or(false),
         },
     ))
 }
@@ -89,29 +98,36 @@ async fn detail_no_hno() -> Redirect {
     Redirect::to(uri!(index))
 }
 
-#[get("/admin")]
-async fn admin(user: Option<Claims>) -> Template {
-    Template::render("adminpage", context! { title: "管理" })
+#[get("/mine")]
+async fn mine(
+    user: Claims,
+    order_conn: Connection<'_, OrderDb>,
+    order_service: &State<OrderService>,
+) -> Template {
+    println!("user: {:?}", user.user);
+    let orders = if user.user.utype == UserType::User {
+        order_service
+            .get_orders_by_landlore(order_conn.into_inner(), user.user.uno)
+            .await
+    } else {
+        order_service.get_orders(order_conn.into_inner()).await
+    }
+    .unwrap();
+
+    Template::render(
+        "mine",
+        context! { user_name: user.name, user_id: user.user.uno, orders: orders },
+    )
 }
 
-#[get("/employee")]
-async fn employee(user: Option<Claims>) -> Template {
-    Template::render("employeepage", context! { title: "员工" })
-}
-
-#[get("/user")]
-async fn user_info(user: Claims) -> Template {
-    Template::render("user", context! { user_id: user.name })
-}
-
-#[get("/user", rank = 2)]
-async fn user_info_need_login() -> Redirect {
+#[get("/mine", rank = 2)]
+async fn mine_need_login() -> Redirect {
     Redirect::to(uri!(login))
 }
 
 #[get("/login")]
 async fn login_success(_user: Claims) -> Redirect {
-    Redirect::to(uri!(user_info))
+    Redirect::to(uri!(mine))
 }
 
 #[get("/login", rank = 2)]
@@ -151,10 +167,8 @@ pub fn routes() -> Vec<Route> {
         zufang,
         detail,
         detail_no_hno,
-        admin,
-        employee,
-        user_info,
-        user_info_need_login,
+        mine,
+        mine_need_login,
         login_success,
         login,
         register,

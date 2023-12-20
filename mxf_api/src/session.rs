@@ -25,6 +25,7 @@ async fn login(
         .login(db, &login.0)
         .await
         .map_err(|e| e.to_json())?;
+    println!("user: {:?}", user);
 
     let token = Claims::from_user(&user)
         .into_token()
