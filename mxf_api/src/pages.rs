@@ -63,7 +63,7 @@ async fn detail(
     }
     let db = conn.into_inner();
     let house = house_service
-        .find_house_by_id(db, hno.unwrap())
+        .get_house_by_hno(db, hno.unwrap())
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     Ok(Template::render(

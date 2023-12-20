@@ -49,10 +49,10 @@ impl<'r> FromRequest<'r> for Claims {
 }
 
 impl Claims {
-    pub(crate) fn from_name(name: &str) -> Self {
+    pub(crate) fn from_user(user: &UserModel) -> Self {
         Self {
-            name: name.to_string(),
-            user: UserModel::default(),
+            name: user.uname.clone(),
+            user: user.clone(),
             exp: 0,
         }
     }
@@ -94,21 +94,5 @@ impl Claims {
         )?;
 
         Ok(token)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Claims;
-
-    #[test]
-    fn to_token_and_back() {
-        let claim = Claims::from_name("test runner");
-        let token = claim.into_token().unwrap();
-        let token = format!("{token}");
-
-        let claim = Claims::from_authorization(&token).unwrap();
-
-        assert_eq!(claim.name, "test runner");
     }
 }

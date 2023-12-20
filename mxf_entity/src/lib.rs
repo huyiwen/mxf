@@ -4,6 +4,7 @@ extern crate rocket;
 pub mod errors;
 pub mod house_filter;
 pub mod house_listing;
+pub mod order;
 pub mod order_data;
 pub mod session_data;
 pub mod user;
@@ -22,3 +23,9 @@ pub use user::ActiveModel as UserActiveModel;
 pub use user::Column as UserColumn;
 pub use user::Entity as UserEntity;
 pub use user::Model as UserModel;
+
+pub use order::ActiveModel as OrderActiveModel;
+pub use order::Column as OrderColumn;
+pub use order::Entity as OrderEntity;
+pub use order::Model as OrderModel;
+pub use order::OrderType;

@@ -336,11 +336,6 @@ function apply()
     let email=document.getElementById('email_r').value;
     let usertype=document.getElementById('usertype_r').value;
 
-    let encrypt=new JSEncrypt();
-    encrypt.setPublicKey(PUBLICKEY);
-    let encrypted=encrypt.encrypt(password);
-
-
     // 构建包含用户名和密码的对象
     let data = {
       username: username,
@@ -410,9 +405,6 @@ function login()
     let username = document.getElementById("username_l").value;
     let password = document.getElementById("pwd_l").value;
     let usertype=document.getElementById('usertype_l').value;
-    let encrypt=new JSEncrypt();
-    encrypt.setPublicKey(PUBLICKEY);
-    let encrypted=encrypt.encrypt(password);
 
     // 构建包含用户名和密码的对象
     let data = {
@@ -468,6 +460,5 @@ function login()
       });
 }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
 {{/inline}}
 {{> partials/base}}

@@ -21,12 +21,12 @@ async fn login(
 ) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
     let db = conn.into_inner();
 
-    user_service
+    let user = user_service
         .login(db, &login.0)
         .await
         .map_err(|e| e.to_json())?;
 
-    let token = Claims::from_name(&login.username)
+    let token = Claims::from_user(&user)
         .into_token()
         .map_err(|e| e.to_json())?;
     jar.add_private((JWT_COOKIE_NAME, token));

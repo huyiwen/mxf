@@ -15,5 +15,5 @@ mini-moka = "0.10.2"
 thiserror = "1.0.50"
 rsa = { version = "0.9.6", features = ["pem"] }
 rand = "0.8.5"
-chrono = "0.4.23"
+chrono = { version = "0.4.23", features = ["alloc"] }
 lazy_static = "1.4.0"
