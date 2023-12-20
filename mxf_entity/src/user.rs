@@ -7,7 +7,6 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "users")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    #[serde(skip_deserializing)]
     pub uno: u32,
     pub uname: String,
     pub(crate) upass: String,

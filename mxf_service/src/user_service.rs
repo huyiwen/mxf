@@ -86,7 +86,6 @@ impl UserService {
     ) -> Result<UserModel, MXFError> {
         if !self.uno_cache.contains_key(&String::from(username)) {
             let user = UserEntity::find()
-                .column(UserColumn::Uname)
                 .filter(UserColumn::Uname.eq(username))
                 .one(db)
                 .await?

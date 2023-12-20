@@ -1,0 +1,38 @@
+{{#*inline "page"}}
+<div class="title" style="text-align: center; margin: 3%; font-size: x-large">
+    当前登录帐号：{{ user_name }} （{{ user_id }}）
+</div>
+<div class="orders" style="margin: 0% 10%">
+<table class="dataintable">
+  <tbody>
+    <tr>
+      <th>订单编号</th>
+      <th>订单类型</th>
+      <th>开始时间</th>
+      <th>结束时间</th>
+      <th>租房人</th>
+      <th>房主</th>
+      <th>操作</th>
+    </tr>
+    {{#each orders}}
+    <tr>
+      <td>{{{ono}}}</td>
+      <td>{{{otype}}}</td>
+      <td>{{{ostart}}}</td>
+      <td>{{{oend}}}</td>
+      <td>{{{htenant}}}</td>
+      <td>{{{hlandlore}}}</td>
+      <td><button onclick="alert('同意');">同意</button></td>
+    </tr>
+    {{else}}
+      <td colspan="7">您的账户当前暂无订单</td>
+    {{/each}}
+  </tbody>
+</table>
+<form action="/logout" method="post" accept-charset="utf-8" style="text-align: center; margin: 3%;">
+    <input type="submit" name="logout" id="logout" value="logout" />
+</form>
+</div>
+
+{{/inline}}
+{{> partials/base}}

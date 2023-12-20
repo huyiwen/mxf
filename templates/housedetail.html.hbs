@@ -11,6 +11,74 @@
   <link rel="stylesheet" href="css/mricode.pagination.css"/>
 </head>
 <style>
+table.dataintable {
+	margin-top:15px;
+	border-collapse:collapse;
+	border:1px solid #aaa;
+	width:100%;
+	}
+
+table.dataintable th {
+	vertical-align:baseline;
+	padding:10px 10px 10px 10px;
+	background-color:#3F3F3F;
+	border:1px solid #3F3F3F;
+	text-align:left;
+	color:#fff;
+	}
+
+table.dataintable td {
+	vertical-align:text-top;
+	padding:9px 9px 9px 9px;
+	border:1px solid #aaa;
+	}
+
+table.dataintable tr:nth-child(odd) {
+	background-color:#F5F5F5;
+}
+
+table.dataintable tr:nth-child(even) {
+	background-color:#fff;
+}
+
+table.dataintable pre {
+	width:auto;
+	margin:0;
+	padding:0;
+	border:0;
+	background-color:transparent;
+	}
+
+table.dataintable p {margin:0 0 2px 0;}
+
+div#maincontent table.dataintable ul, div#maincontent table.dataintable li {
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	}
+
+table.dataintable td em
+		{
+		color:#0000ff;
+		font-weight:normal;
+		}
+
+table.dataintable .table_value {color:#0F93D2;}
+
+.no_wrap {white-space:nowrap;}
+
+div#maincontent table.dataintable ul.listintable {
+	margin:20px;
+	padding:0;
+	}
+
+div#maincontent table.dataintable ul.listintable  li{
+	list-style-type:disc;
+	}
+
+div#maincontent table.dataintable p {
+	line-height: 130%;
+}
 
  .containert {
 
@@ -54,21 +122,14 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a  class="navbar-brand" href="/zufang"> 房屋租赁系统</a>
+      <a  class="navbar-brand" href="/"> 房屋租赁系统</a>
     </div>
-    <!--小屏幕导航按钮和logo-->
-    <!--导航-->
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <!--
-        <li><a href="index.html"><span class="glyphicon glyphicon-home"></span>&nbsp;&nbsp;后台首页</a></li>
-        <li class="active"><a href="user.html"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;用户管理</a></li>
-        <li><a href="machine.html"><span class="glyphicon glyphicon-expand"></span>&nbsp;&nbsp;机器管理</a></li>
-        <li><a href="service.html"><span class="glyphicon glyphicon-tasks"></span>&nbsp;&nbsp;服务管理</a></li>
-        <li><a href="log.html"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;日志管理</a></li>
-        <li><a href="wiki.html"><span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;使用文档</a></li>
-        -->
-    </ul>
+        <li><a onclick="window.location.href='/zufang';"><span class="glyphicon glyphicon-home" ></span>&nbsp;&nbsp;查看房产信息</a></li>
+        <li><a onclick="window.location.href='/mine';"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;查看租赁申请</a></li>
+        <li><a onclick="window.location.href='/new';"><span class="glyphicon glyphicon-home" ></span>&nbsp;&nbsp;新增房产信息</a></li>
+      </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
          <!--
@@ -106,19 +167,45 @@
   <h3>此房屋详情如下：</h3>
 
   <div class="info">
-   <p>房源编号：{{hno}}</p>
+   <p>房源编号: {{hno}}</p>
   <p>区域: {{hdistrict}}</p>
   <p>房源地址: {{haddr}}</p>
-  <p>房型:{{hlo}}</p>
-  <p>层数:{{hflr}}</p>
-  <p>房产面积:{{harea}} 平方米</p>
-  <p>主要设施:{{hequip}}</p>
+  <p>房型: {{hlo}}</p>
+  <p>层数: {{hflr}}</p>
+  <p>房产面积: {{harea}} 平方米</p>
+  <p>主要设施: {{hequip}}</p>
   <p>租赁价格：{{hprice}} 元/月</p>
-  <p>房方编号:{{hlandlore}}</p>
-  <p>挂租时间:{{hdate}}</p>
+  <p>房方编号: {{hlandlore}}</p>
+  <p>挂租时间: {{hdate}}</p>
 <button class='btn btn-success' onclick='leaseHouse({{hno}})'>租赁</button>
 
   <!-- 在这里可以继续添加其他信息 -->
+  <h3>订单详情：</h3>
+
+  <table class="dataintable">
+  <tbody>
+    <tr>
+      <th>订单编号</th>
+      <th>订单类型</th>
+      <th>开始时间</th>
+      <th>结束时间</th>
+      {{#if is_admin}}
+      <th>租房人</th>
+      {{/if}}
+    </tr>
+    {{#each orders}}
+    <tr>
+      <td>{{{ono}}}</td>
+      <td>{{{otype}}}</td>
+      <td>{{{ostart}}}</td>
+      <td>{{{oend}}}</td>
+      {{#if is_admin}}
+      <td>{{{htenant}}}</td>
+      {{/if}}
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
 
 </div>
 </div>
@@ -238,12 +325,6 @@ function getParameterByName(name) {
         alert('您取消了租赁申请。');
     }
 }
-
-
-
-
-
-
 
 
 </script>

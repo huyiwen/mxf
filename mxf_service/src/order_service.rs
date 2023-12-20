@@ -1,32 +1,63 @@
 use chrono::{Duration, Utc};
 use sea_orm::*;
 
-use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderType};
+use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderModel, OrderType};
 
-pub struct OrderService;
+pub struct OrderService {
+    date_format: &'static str,
+}
 
 impl OrderService {
     pub fn init() -> Self {
-        Self
+        Self {
+            date_format: "%Y-%m-%d",
+        }
+    }
+
+    pub async fn get_orders_by_hno(
+        &self,
+        db: &DbConn,
+        hno: u32,
+        confirmed_only: bool,
+    ) -> Result<Vec<OrderModel>, MXFError> {
+        if confirmed_only {
+            OrderEntity::find()
+                .filter(OrderColumn::Hno.eq(hno))
+                .filter(
+                    Condition::any()
+                        .add(OrderColumn::Otype.eq(OrderType::LeaseConfirm))
+                        .add(OrderColumn::Otype.eq(OrderType::CancelConfirm)),
+                )
+                .all(db)
+                .await
+                .map_err(|e| e.into())
+        } else {
+            OrderEntity::find()
+                .filter(OrderColumn::Hno.eq(hno))
+                .all(db)
+                .await
+                .map_err(|e| e.into())
+        }
+    }
+
+    pub async fn get_orders_by_landlore(
+        &self,
+        db: &DbConn,
+        hlandlore: u32,
+    ) -> Result<Vec<OrderModel>, MXFError> {
+        OrderEntity::find()
+            .filter(OrderColumn::Hlandlore.eq(hlandlore))
+            .all(db)
+            .await
+            .map_err(|e| e.into())
+    }
+
+    pub async fn get_orders(&self, db: &DbConn) -> Result<Vec<OrderModel>, MXFError> {
+        OrderEntity::find().all(db).await.map_err(|e| e.into())
     }
 
     pub async fn check_available(&self, db: &DbConn, hno: u32) -> Result<u32, MXFError> {
-        let all_orders = OrderEntity::find()
-            .column(OrderColumn::Ono)
-            .filter(OrderColumn::Hno.eq(hno))
-            .all(db)
-            .await?;
-        println!("all: {:?}", all_orders);
-
-        let orders = OrderEntity::find()
-            .filter(OrderColumn::Hno.eq(hno))
-            .filter(
-                Condition::any()
-                    .add(OrderColumn::Otype.eq(OrderType::LeaseConfirm))
-                    .add(OrderColumn::Otype.eq(OrderType::CancelConfirm)),
-            )
-            .all(db)
-            .await?;
+        let orders = self.get_orders_by_hno(db, hno, true).await?;
 
         let mut max_ono = 0;
         let mut max_otype = OrderType::LeaseRequest;
@@ -77,8 +108,8 @@ impl OrderService {
             htenant: Set(htenant),
             odate: Set(now.to_rfc3339()),
             otype: Set(OrderType::LeaseRequest),
-            ostart: Set(now.to_rfc3339()),
-            oend: Set(oend.to_rfc3339()),
+            ostart: Set(now.format(self.date_format).to_string()),
+            oend: Set(oend.format(self.date_format).to_string()),
             ostatus: Set(ono),
         };
         order.insert(db).await?;
