@@ -3,6 +3,66 @@
     当前登录帐号：{{ user_name }} （用户编号：{{ user_id }}，电话：{{ uphone }}，邮箱：{{ uemail }}）
 </div>
 <div class="orders" style="margin: 0% 10%">
+{{#if is_admin}}
+<p>所有订单记录</p>
+<div style="max-height: 60vh; overflow-y: scroll">
+<table class="dataintable">
+  <tbody>
+    <tr>
+      <th>订单号</th>
+      <th>房源</th>
+      <th>订单类型</th>
+      <th>订单时间</th>
+      <th>开始时间</th>
+      <th>结束时间</th>
+      <th>房主</th>
+      <th>租房人</th>
+    </tr>
+    {{#each my_orders}}
+    <tr>
+      <td>{{{ono}}}</td>
+      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
+      <td>{{{otype}}}</td>
+      <td>{{{odate}}}</td>
+      <td>{{{ostart}}}</td>
+      <td>{{{oend}}}</td>
+      <td>{{{hlandlore}}}</td>
+      <td>{{{htenant}}}</td>
+    </tr>
+    {{else}}
+      <td colspan="5">管理员系统暂无订单</td>
+    {{/each}}
+  </tbody>
+</table>
+</div>
+{{else}}
+<p>你的申请</p>
+<div style="max-height: 25vh; overflow-y: scroll">
+<table class="dataintable">
+  <tbody>
+    <tr>
+      <th>房源</th>
+      <th>订单类型</th>
+      <th>开始时间</th>
+      <th>结束时间</th>
+      <th>房主</th>
+    </tr>
+    {{#each my_orders}}
+    <tr>
+      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
+      <td>{{{otype}}}</td>
+      <td>{{{ostart}}}</td>
+      <td>{{{oend}}}</td>
+      <td>{{{hlandlore}}}</td>
+    </tr>
+    {{else}}
+      <td colspan="5">您的账户当前暂无已发起的订单</td>
+    {{/each}}
+  </tbody>
+</table>
+</div>
+<p>你收到的申请：</p>
+<div style="max-height: 25vh; overflow-y: scroll">
 <table class="dataintable">
   <tbody>
     <tr>
@@ -11,24 +71,24 @@
       <th>开始时间</th>
       <th>结束时间</th>
       <th>租房人</th>
-      <th>房主</th>
       <th>操作</th>
     </tr>
-    {{#each orders}}
+    {{#each received_orders}}
     <tr>
-      <td><a href="/detail?hno={{{ostatus}}}">{{{ostatus}}}</a></td>
+      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
       <td>{{{otype}}}</td>
       <td>{{{ostart}}}</td>
       <td>{{{oend}}}</td>
       <td>{{{htenant}}}</td>
-      <td>{{{hlandlore}}}</td>
       <td><button onclick="confirm({{{ono}}})" {{lookup ../confirm @index}}>同意</button></td>
     </tr>
     {{else}}
-      <td colspan="7">您的账户当前暂无订单</td>
+      <td colspan="6">您的账户暂时未收到租房订单</td>
     {{/each}}
   </tbody>
 </table>
+</div>
+{{/if}}
 <form action="/logout" method="post" accept-charset="utf-8" style="text-align: center; margin: 3%;">
     <input type="submit" name="logout" id="logout" value="logout" />
 </form>
@@ -50,6 +110,7 @@ function confirm(ono) {
         })
         .then(responseData => {
             console.log('请求成功:', responseData);
+            location.reload();
             alert('成功审批此租赁请求！');
 
         })

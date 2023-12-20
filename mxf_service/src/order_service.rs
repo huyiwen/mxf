@@ -1,5 +1,6 @@
+use std::collections::HashMap;
+
 use chrono::{Duration, Utc};
-use sea_orm::sea_query::Query;
 use sea_orm::*;
 
 use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderModel, OrderType};
@@ -19,39 +20,52 @@ impl OrderService {
         &self,
         db: &DbConn,
         hno: u32,
-        confirmed_only: bool,
-    ) -> Result<Vec<OrderModel>, MXFError> {
-        if confirmed_only {
-            OrderEntity::find()
-                .filter(OrderColumn::Hno.eq(hno))
-                .filter(
-                    Condition::any()
-                        .add(OrderColumn::Otype.eq(OrderType::LeaseConfirm))
-                        .add(OrderColumn::Otype.eq(OrderType::CancelConfirm)),
-                )
-                .all(db)
-                .await
-                .map_err(|e| e.into())
-        } else {
-            OrderEntity::find()
-                .filter(OrderColumn::Hno.eq(hno))
-                .all(db)
-                .await
-                .map_err(|e| e.into())
-        }
-    }
-
-    pub async fn get_open_orders_by_uno(
-        &self,
-        db: &DbConn,
-        uno: u32,
     ) -> Result<Vec<OrderModel>, MXFError> {
         OrderEntity::find()
-            .filter(
-                Condition::any()
-                    .add(OrderColumn::Hlandlore.eq(uno))
-                    .add(OrderColumn::Htenant.eq(uno)),
-            )
+            .filter(OrderColumn::Hno.eq(hno))
+            .all(db)
+            .await
+            .map_err(|e| e.into())
+    }
+
+    pub fn filter_latest(orders: &Vec<OrderModel>) -> Vec<OrderModel> {
+        let mut orders_type: HashMap<u32, OrderType> = HashMap::new();
+        for order in orders {
+            if orders_type
+                .entry(order.ostatus)
+                .or_insert(order.otype)
+                .clone()
+                < order.otype
+            {
+                orders_type.insert(order.ostatus, order.otype);
+            }
+        }
+        orders
+            .iter()
+            .filter(|o| orders_type[&o.ostatus] == o.otype)
+            .cloned()
+            .collect()
+    }
+
+    pub async fn get_orders_by_htenant(
+        &self,
+        db: &DbConn,
+        htenant: u32,
+    ) -> Result<Vec<OrderModel>, MXFError> {
+        OrderEntity::find()
+            .filter(OrderColumn::Htenant.eq(htenant))
+            .all(db)
+            .await
+            .map_err(|e| e.into())
+    }
+
+    pub async fn get_orders_by_hlandlore(
+        &self,
+        db: &DbConn,
+        hlandlore: u32,
+    ) -> Result<Vec<OrderModel>, MXFError> {
+        OrderEntity::find()
+            .filter(OrderColumn::Hlandlore.eq(hlandlore))
             .all(db)
             .await
             .map_err(|e| e.into())
@@ -62,7 +76,7 @@ impl OrderService {
     }
 
     pub async fn check_available(&self, db: &DbConn, hno: u32) -> Result<u32, MXFError> {
-        let orders = self.get_orders_by_hno(db, hno, true).await?;
+        let orders = self.get_orders_by_hno(db, hno).await?;
 
         let mut max_ono = 0;
         let mut max_otype = OrderType::LeaseRequest;

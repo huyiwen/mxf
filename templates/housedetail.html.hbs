@@ -193,17 +193,34 @@ div#maincontent table.dataintable p {
       <th>租房人</th>
       {{/if}}
     </tr>
+    {{#if is_admin}}
     {{#each orders}}
     <tr>
       <td>{{{ono}}}</td>
       <td>{{{otype}}}</td>
       <td>{{{ostart}}}</td>
       <td>{{{oend}}}</td>
-      {{#if is_admin}}
       <td>{{{htenant}}}</td>
-      {{/if}}
+    </tr>
+    {{else}}
+    <tr>
+      <td colspan="5">暂无订单</td>
     </tr>
     {{/each}}
+    {{else}}
+    {{#each orders}}
+    <tr>
+      <td>{{{ono}}}</td>
+      <td>{{{otype}}}</td>
+      <td>{{{ostart}}}</td>
+      <td>{{{oend}}}</td>
+    </tr>
+    {{else}}
+    <tr>
+      <td colspan="5">暂无订单</td>
+    </tr>
+    {{/each}}
+    {{/if}}
   </tbody>
 </table>
 
@@ -308,6 +325,7 @@ function getParameterByName(name) {
         .then(responseData => {
             if (responseData.jieguo == true) {
                 console.log('请求成功:', responseData);
+                location.reload();
                 alert('租赁申请成功！');
                 //window.location.href="./tenantpage.html";
             } else {

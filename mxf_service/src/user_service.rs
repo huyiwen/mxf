@@ -104,12 +104,49 @@ impl UserService {
             .ok_or(MXFError::UserNotFound(username.into()))
     }
 
+    async fn get_user_by_name_or_uno(
+        &self,
+        db: &DbConn,
+        username_or_uno: &'_ str,
+    ) -> Result<UserModel, MXFError> {
+        if !self.uno_cache.contains_key(&String::from(username_or_uno)) {
+            let user = UserEntity::find()
+                .filter(
+                    Condition::any()
+                        .add(UserColumn::Uname.eq(username_or_uno))
+                        .add_option(
+                            username_or_uno
+                                .parse::<u32>()
+                                .ok()
+                                .map(|u| UserColumn::Uno.eq(u)),
+                        ),
+                )
+                .one(db)
+                .await?
+                .ok_or(MXFError::UserNotFound(username_or_uno.into()))?;
+            self.uno_cache
+                .insert(String::from(username_or_uno), user.uno);
+        }
+
+        let uno = self
+            .uno_cache
+            .get(&String::from(username_or_uno))
+            .ok_or(MXFError::CacheError(None))?;
+
+        UserEntity::find_by_id(uno)
+            .one(db)
+            .await?
+            .ok_or(MXFError::UserNotFound(username_or_uno.into()))
+    }
+
     pub async fn login(
         &self,
         db: &DbConn,
         login_data: &LoginData<'_>,
     ) -> Result<UserModel, MXFError> {
-        let user = self.get_user_by_name(db, login_data.username).await?;
+        let user = self
+            .get_user_by_name_or_uno(db, login_data.username)
+            .await?;
         println!("login user: {:?}", user);
         login_data.validate(user /* , self.token.private_key()? */)
     }

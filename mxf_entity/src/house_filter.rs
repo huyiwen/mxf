@@ -2,7 +2,7 @@ use rocket::form::FromForm;
 use rocket::serde::ser::SerializeStruct;
 use rocket::serde::Serialize;
 use sea_orm::sea_query::{Expr, LikeExpr};
-use sea_orm::Condition;
+use sea_orm::{ColumnTrait, Condition};
 use std::convert::From;
 
 use super::HouseListingColumn;
@@ -138,47 +138,47 @@ impl From<HouseFilter<'_>> for Condition {
             .add_option(
                 value
                     .floor_lower()
-                    .map(|fl| Expr::col(HouseListingColumn::Hflr).gte(fl)),
+                    .map(|fl| HouseListingColumn::Hflr.gte(fl)),
             )
             .add_option(
                 value
                     .floor_upper()
-                    .map(|fu| Expr::col(HouseListingColumn::Hflr).lt(fu)),
+                    .map(|fu| HouseListingColumn::Hflr.lt(fu)),
             )
             .add_option(
                 value
                     .area_lower()
-                    .map(|al| Expr::col(HouseListingColumn::Harea).gte(al)),
+                    .map(|al| HouseListingColumn::Harea.gte(al)),
             )
             .add_option(
                 value
                     .area_upper()
-                    .map(|au| Expr::col(HouseListingColumn::Harea).lt(au)),
+                    .map(|au| HouseListingColumn::Harea.lt(au)),
             )
             .add_option(
                 value
                     .price_lower()
-                    .map(|pl| Expr::col(HouseListingColumn::Hprice).gte(pl)),
+                    .map(|pl| HouseListingColumn::Hprice.gte(pl)),
             )
             .add_option(
                 value
                     .price_upper()
-                    .map(|pu| Expr::col(HouseListingColumn::Hprice).lt(pu)),
+                    .map(|pu| HouseListingColumn::Hprice.lt(pu)),
             )
             .add_option(
                 value
                     .district()
-                    .map(|d| Expr::col(HouseListingColumn::Hdistrict).like(full_text(d))),
+                    .map(|d| HouseListingColumn::Hdistrict.contains(d)),
             )
             .add_option(
                 value
                     .house_type()
-                    .map(|ht| Expr::col(HouseListingColumn::Hlo).like(full_text(ht))),
+                    .map(|ht| HouseListingColumn::Hlo.contains(ht)),
             )
             .add_option(
                 value
                     .suite()
-                    .map(|s| Expr::col(HouseListingColumn::Hsuite).like(full_text(s))),
+                    .map(|s| HouseListingColumn::Hsuite.contains(s)),
             )
     }
 }
