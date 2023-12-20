@@ -1,3 +1,4 @@
+use rocket::form::Form;
 use rocket::serde::json::Json;
 use rocket::{Route, State};
 use sea_orm_rocket::Connection;
@@ -42,6 +43,24 @@ async fn lease(
     }))
 }
 
+#[post("/confirm", format = "json", data = "<ono>")]
+async fn confirm(
+    ono: Json<u32>,
+    user: Claims,
+    order_conn: Connection<'_, OrderDb>,
+    order_service: &State<OrderService>,
+) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
+    order_service
+        .confirm_order(order_conn.into_inner(), *ono, user.user.uno)
+        .await
+        .map_err(|e| e.to_json())?;
+
+    Ok(Json(JieguoResponse {
+        jieguo: true,
+        reason: None,
+    }))
+}
+
 pub fn routes() -> Vec<Route> {
-    routes![lease]
+    routes![lease, confirm]
 }

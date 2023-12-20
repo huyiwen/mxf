@@ -7,7 +7,7 @@ use rocket_dyn_templates::{context, Template};
 use sea_orm_rocket::Connection;
 
 use super::{Claims, HouseDb, OrderDb};
-use mxf_entity::HouseFilter;
+use mxf_entity::{HouseFilter, OrderType};
 use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
@@ -107,16 +107,26 @@ async fn mine(
     println!("user: {:?}", user.user);
     let orders = if user.user.utype == UserType::User {
         order_service
-            .get_orders_by_landlore(order_conn.into_inner(), user.user.uno)
+            .get_open_orders_by_landlore(order_conn.into_inner(), user.user.uno)
             .await
     } else {
         order_service.get_orders(order_conn.into_inner()).await
     }
     .unwrap();
+    let confirm = orders
+        .iter()
+        .map(|o| {
+            if o.otype == OrderType::CancelRequest || o.otype == OrderType::LeaseRequest {
+                ""
+            } else {
+                "disabled"
+            }
+        })
+        .collect::<Vec<&str>>();
 
     Template::render(
         "mine",
-        context! { user_name: user.name, user_id: user.user.uno, orders: orders },
+        context! { user_name: user.name, user_id: user.user.uno, orders: orders, confirm: confirm },
     )
 }
 

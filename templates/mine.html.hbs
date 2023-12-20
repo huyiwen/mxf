@@ -22,7 +22,7 @@
       <td>{{{oend}}}</td>
       <td>{{{htenant}}}</td>
       <td>{{{hlandlore}}}</td>
-      <td><button onclick="alert('同意');">同意</button></td>
+      <td><button onclick="confirm({{{ono}}})" {{lookup ../confirm @index}}>同意</button></td>
     </tr>
     {{else}}
       <td colspan="7">您的账户当前暂无订单</td>
@@ -33,6 +33,32 @@
     <input type="submit" name="logout" id="logout" value="logout" />
 </form>
 </div>
+<script>
+function confirm(ono) {
+    fetch('/confirm', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ono)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('请求失败');
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            console.log('请求成功:', responseData);
+            alert('成功审批此租赁请求！');
+
+        })
+        .catch(error => {
+            console.error('请求失败:', error);
+            alert('通过审批失败，请稍后重试。');
+        });
+}
+</script>
 
 {{/inline}}
 {{> partials/base}}

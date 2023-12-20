@@ -54,6 +54,9 @@ pub enum MXFError {
     #[error("house unavailable")]
     HouseUnavailable(u32),
 
+    #[error("non-owners cannot confirm orders")]
+    NonOwnerCannotConfirm,
+
     #[error("unknown error")]
     UnknownError(String),
 }
