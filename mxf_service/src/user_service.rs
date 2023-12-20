@@ -110,6 +110,7 @@ impl UserService {
         login_data: &LoginData<'_>,
     ) -> Result<UserModel, MXFError> {
         let user = self.get_user_by_name(db, login_data.username).await?;
+        println!("login user: {:?}", user);
         login_data.validate(user /* , self.token.private_key()? */)
     }
 

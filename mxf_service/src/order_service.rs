@@ -41,13 +41,17 @@ impl OrderService {
         }
     }
 
-    pub async fn get_open_orders_by_landlore(
+    pub async fn get_open_orders_by_uno(
         &self,
         db: &DbConn,
-        hlandlore: u32,
+        uno: u32,
     ) -> Result<Vec<OrderModel>, MXFError> {
         OrderEntity::find()
-            .filter(OrderColumn::Hlandlore.eq(hlandlore))
+            .filter(
+                Condition::any()
+                    .add(OrderColumn::Hlandlore.eq(uno))
+                    .add(OrderColumn::Htenant.eq(uno)),
+            )
             .all(db)
             .await
             .map_err(|e| e.into())
