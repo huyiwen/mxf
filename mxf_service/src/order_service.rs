@@ -1,4 +1,5 @@
 use chrono::{Duration, Utc};
+use sea_orm::sea_query::Query;
 use sea_orm::*;
 
 use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderModel, OrderType};
@@ -40,7 +41,7 @@ impl OrderService {
         }
     }
 
-    pub async fn get_orders_by_landlore(
+    pub async fn get_open_orders_by_landlore(
         &self,
         db: &DbConn,
         hlandlore: u32,
@@ -72,8 +73,15 @@ impl OrderService {
             }
         }
 
-        // TODO: cache the next ono
+        if max_otype == OrderType::LeaseConfirm {
+            Err(MXFError::HouseUnavailable(hno))
+        } else {
+            self.get_next_ono(db).await
+        }
+    }
 
+    async fn get_next_ono(&self, db: &DbConn) -> Result<u32, MXFError> {
+        // TODO: cache the next ono
         let next_ono = OrderEntity::find()
             .order_by_desc(OrderColumn::Ono)
             .one(db)
@@ -81,12 +89,7 @@ impl OrderService {
             .unwrap()
             .ono
             + 1;
-
-        if max_otype == OrderType::LeaseConfirm {
-            Err(MXFError::HouseUnavailable(hno))
-        } else {
-            Ok(next_ono)
-        }
+        Ok(next_ono)
     }
 
     pub async fn place_order_by_ono(
@@ -110,6 +113,34 @@ impl OrderService {
             otype: Set(OrderType::LeaseRequest),
             ostart: Set(now.format(self.date_format).to_string()),
             oend: Set(oend.format(self.date_format).to_string()),
+            ostatus: Set(ono),
+        };
+        order.insert(db).await?;
+        Ok(())
+    }
+
+    pub async fn confirm_order(
+        &self,
+        db: &DbConn,
+        ono: u32,
+        user_uno: u32,
+    ) -> Result<(), MXFError> {
+        let order = OrderEntity::find_by_id(ono).one(db).await?.unwrap();
+        if order.hlandlore != user_uno {
+            return Err(MXFError::NonOwnerCannotConfirm);
+        }
+
+        let next_ono = self.get_next_ono(db).await?;
+        let now = Utc::now();
+        let order = OrderActiveModel {
+            ono: Set(next_ono),
+            hno: Set(order.hno),
+            hlandlore: Set(order.hlandlore),
+            htenant: Set(order.htenant),
+            odate: Set(now.to_rfc3339()),
+            otype: Set(OrderType::LeaseConfirm),
+            ostart: Set(order.ostart),
+            oend: Set(order.oend),
             ostatus: Set(ono),
         };
         order.insert(db).await?;
