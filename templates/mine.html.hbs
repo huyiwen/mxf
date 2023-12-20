@@ -1,12 +1,12 @@
 {{#*inline "page"}}
 <div class="title" style="text-align: center; margin: 3%; font-size: x-large">
-    当前登录帐号：{{ user_name }} （{{ user_id }}）
+    当前登录帐号：{{ user_name }} （用户编号：{{ user_id }}，电话：{{ uphone }}，邮箱：{{ uemail }}）
 </div>
 <div class="orders" style="margin: 0% 10%">
 <table class="dataintable">
   <tbody>
     <tr>
-      <th>订单编号</th>
+      <th>房源</th>
       <th>订单类型</th>
       <th>开始时间</th>
       <th>结束时间</th>
@@ -16,7 +16,7 @@
     </tr>
     {{#each orders}}
     <tr>
-      <td>{{{ono}}}</td>
+      <td><a href="/detail?hno={{{ostatus}}}">{{{ostatus}}}</a></td>
       <td>{{{otype}}}</td>
       <td>{{{ostart}}}</td>
       <td>{{{oend}}}</td>

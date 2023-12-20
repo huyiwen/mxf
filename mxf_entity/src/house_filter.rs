@@ -11,7 +11,7 @@ fn full_text(query: &str) -> LikeExpr {
     LikeExpr::new(format!("%{}%", query))
 }
 
-#[derive(FromForm, Default, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(FromForm, Default, Copy, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct HouseFilter<'r> {
     #[field(name = "q", default = "")]
     _district: &'r str,
@@ -152,7 +152,7 @@ impl From<HouseFilter<'_>> for Condition {
             )
             .add_option(
                 value
-                    .area_lower()
+                    .area_upper()
                     .map(|au| Expr::col(HouseListingColumn::Harea).lt(au)),
             )
             .add_option(
@@ -173,7 +173,7 @@ impl From<HouseFilter<'_>> for Condition {
             .add_option(
                 value
                     .house_type()
-                    .map(|ht| Expr::col(HouseListingColumn::Harea).like(full_text(ht))),
+                    .map(|ht| Expr::col(HouseListingColumn::Hlo).like(full_text(ht))),
             )
             .add_option(
                 value
@@ -227,7 +227,7 @@ impl std::fmt::Display for HouseFilter<'_> {
         if let Some(suite) = self.suite() {
             repr.push(format!("suite: {}", suite));
         }
-        repr.push(format!("page: {}", self.page));
+        // repr.push(format!("page: {}", self.page));
         write!(f, "HouseFilter({})", repr.join(", "))?;
         Ok(())
     }

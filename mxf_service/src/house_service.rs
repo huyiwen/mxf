@@ -39,6 +39,12 @@ impl HouseService {
     ) -> Result<(Vec<HouseListingModel>, u64), MXFError> {
         let filter_string = house_filter.to_string();
         let posts_per_page = posts_per_page as u64;
+        println!(
+            "filter {}: {:?} {:?}",
+            filter_string,
+            house_filter,
+            Condition::from(house_filter)
+        );
         let paginator = HouseListingEntity::find()
             .filter(Condition::from(house_filter))
             .paginate(db, posts_per_page);

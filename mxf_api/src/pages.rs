@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use chrono;
 use mxf_entity::user::UserType;
 use rocket::request::FlashMessage;
@@ -7,7 +9,7 @@ use rocket_dyn_templates::{context, Template};
 use sea_orm_rocket::Connection;
 
 use super::{Claims, HouseDb, OrderDb};
-use mxf_entity::{HouseFilter, OrderType};
+use mxf_entity::{HouseFilter, OrderModel, OrderType};
 use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
@@ -107,16 +109,34 @@ async fn mine(
     println!("user: {:?}", user.user);
     let orders = if user.user.utype == UserType::User {
         order_service
-            .get_open_orders_by_landlore(order_conn.into_inner(), user.user.uno)
+            .get_open_orders_by_uno(order_conn.into_inner(), user.user.uno)
             .await
     } else {
         order_service.get_orders(order_conn.into_inner()).await
     }
     .unwrap();
-    let confirm = orders
+
+    let confirmed: HashSet<u32> = HashSet::from_iter(
+        orders
+            .iter()
+            .filter(|o| o.otype == OrderType::CancelConfirm || o.otype == OrderType::LeaseConfirm)
+            .map(|o| o.ostatus),
+    );
+
+    let open_orders = orders
+        .iter()
+        .filter(|o| {
+            !confirmed.contains(&o.ostatus)
+                || (o.otype != OrderType::CancelRequest && o.otype != OrderType::LeaseRequest)
+        })
+        .collect::<Vec<&OrderModel>>();
+
+    let confirm = open_orders
         .iter()
         .map(|o| {
-            if o.otype == OrderType::CancelRequest || o.otype == OrderType::LeaseRequest {
+            if o.hlandlore == user.user.uno
+                && (o.otype == OrderType::CancelRequest || o.otype == OrderType::LeaseRequest)
+            {
                 ""
             } else {
                 "disabled"
@@ -126,7 +146,14 @@ async fn mine(
 
     Template::render(
         "mine",
-        context! { user_name: user.name, user_id: user.user.uno, orders: orders, confirm: confirm },
+        context! {
+            user_name: user.name,
+            user_id: user.user.uno,
+            uphone: user.user.uphone,
+            uemail: user.user.uemail,
+            orders: open_orders,
+            confirm: confirm,
+        },
     )
 }
 
