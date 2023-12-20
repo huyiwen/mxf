@@ -1,7 +1,4 @@
-use std::collections::HashSet;
-
 use chrono;
-use mxf_entity::user::UserType;
 use rocket::request::FlashMessage;
 use rocket::response::{Flash, Redirect};
 use rocket::{Route, State};
@@ -9,7 +6,8 @@ use rocket_dyn_templates::{context, Template};
 use sea_orm_rocket::Connection;
 
 use super::{Claims, HouseDb, OrderDb};
-use mxf_entity::{HouseFilter, OrderModel, OrderType};
+use mxf_entity::user::UserType;
+use mxf_entity::HouseFilter;
 use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
@@ -67,14 +65,17 @@ async fn detail(
     if hno.is_none() {
         return Err(Flash::error(Redirect::to("/zufang"), "房屋编号不能为空"));
     }
+
     let house = house_service
         .get_house_by_hno(house_conn.into_inner(), hno.unwrap())
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     let orders = order_service
-        .get_orders_by_hno(order_conn.into_inner(), hno.unwrap(), false)
+        .get_orders_by_hno(order_conn.into_inner(), hno.unwrap())
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
+    let orders = OrderService::filter_latest(&orders);
+    println!("house: {:?} -> orders: {:?}", house, orders);
     Ok(Template::render(
         "housedetail",
         context! {
@@ -95,66 +96,61 @@ async fn detail(
     ))
 }
 
-#[get("/detail", rank = 2)]
-async fn detail_no_hno() -> Redirect {
-    Redirect::to(uri!(index))
-}
-
 #[get("/mine")]
 async fn mine(
     user: Claims,
     order_conn: Connection<'_, OrderDb>,
     order_service: &State<OrderService>,
-) -> Template {
+) -> Result<Template, Flash<Redirect>> {
     println!("user: {:?}", user.user);
-    let orders = if user.user.utype == UserType::User {
-        order_service
-            .get_open_orders_by_uno(order_conn.into_inner(), user.user.uno)
+    if user.user.utype != UserType::User {
+        let admin_orders = order_service
+            .get_orders(order_conn.into_inner())
             .await
-    } else {
-        order_service.get_orders(order_conn.into_inner()).await
+            .map_err(|e| e.to_redirect(uri!(index)))?;
+        return Ok(Template::render(
+            "mine",
+            context! {
+                is_admin: true,
+                user_name: user.name,
+                user_id: user.user.uno,
+                uphone: user.user.uphone,
+                uemail: user.user.uemail,
+                my_orders: admin_orders,
+            },
+        ));
     }
-    .unwrap();
 
-    let confirmed: HashSet<u32> = HashSet::from_iter(
-        orders
-            .iter()
-            .filter(|o| o.otype == OrderType::CancelConfirm || o.otype == OrderType::LeaseConfirm)
-            .map(|o| o.ostatus),
-    );
+    let order_db = order_conn.into_inner();
+    let my_orders = order_service
+        .get_orders_by_htenant(order_db, user.user.uno)
+        .await
+        .map_err(|e| e.to_redirect(uri!(index)))?;
+    let my_orders = OrderService::filter_latest(&my_orders);
+    let received_orders = order_service
+        .get_orders_by_hlandlore(order_db, user.user.uno)
+        .await
+        .map_err(|e| e.to_redirect(uri!(index)))?;
+    let received_orders = OrderService::filter_latest(&received_orders);
 
-    let open_orders = orders
+    let confirm_tags = received_orders
         .iter()
-        .filter(|o| {
-            !confirmed.contains(&o.ostatus)
-                || (o.otype != OrderType::CancelRequest && o.otype != OrderType::LeaseRequest)
-        })
-        .collect::<Vec<&OrderModel>>();
-
-    let confirm = open_orders
-        .iter()
-        .map(|o| {
-            if o.hlandlore == user.user.uno
-                && (o.otype == OrderType::CancelRequest || o.otype == OrderType::LeaseRequest)
-            {
-                ""
-            } else {
-                "disabled"
-            }
-        })
+        .map(|o| if !o.is_confirmed() { "" } else { "disabled" })
         .collect::<Vec<&str>>();
 
-    Template::render(
+    Ok(Template::render(
         "mine",
         context! {
+            is_admin: user.user.utype != UserType::User,
             user_name: user.name,
             user_id: user.user.uno,
             uphone: user.user.uphone,
             uemail: user.user.uemail,
-            orders: open_orders,
-            confirm: confirm,
+            my_orders: my_orders,
+            received_orders: received_orders,
+            confirm: confirm_tags,
         },
-    )
+    ))
 }
 
 #[get("/mine", rank = 2)]
@@ -203,7 +199,6 @@ pub fn routes() -> Vec<Route> {
         index_alias,
         zufang,
         detail,
-        detail_no_hno,
         mine,
         mine_need_login,
         login_success,

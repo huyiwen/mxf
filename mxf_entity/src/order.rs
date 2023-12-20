@@ -17,7 +17,17 @@ pub struct Model {
 }
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize, PartialOrd, Ord,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    EnumIter,
+    DeriveActiveEnum,
+    Serialize,
+    Deserialize,
+    PartialOrd,
+    Ord,
+    Copy,
 )]
 #[sea_orm(rs_type = "i32", db_type = "Integer")]
 pub enum OrderType {
@@ -29,6 +39,12 @@ pub enum OrderType {
     CancelRequest,
     #[sea_orm(num_value = 3)]
     CancelConfirm,
+}
+
+impl Model {
+    pub fn is_confirmed(&self) -> bool {
+        self.otype == OrderType::LeaseConfirm || self.otype == OrderType::CancelConfirm
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

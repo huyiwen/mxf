@@ -43,7 +43,7 @@
             admin
             <span class="caret"></span>
           </a>
-    
+
           <ul class="dropdown-menu" aria-labelledby="dLabel">
             <li><a href="index.html"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;个人设置</a></li>
           </ul>
@@ -64,7 +64,7 @@
     <h3 style="margin-left: 10%;">当前员工信息为：</h3>
     <br>
 <div class="panel panel-default" style="margin: 0 10% 0 10%;">
-    
+
     <div class="table-responsive">
       <table class="table table-bordered" >
         <thead>
@@ -83,7 +83,7 @@
           <td class="center">{{email}}</td>
           <td class="center">{{pno}}</td>
           <td class="center">{{identity}}</td>
-          
+
           <td class="center">
             <a data-link="service_config.html" name="consumer_list"  onclick='deletePerson("{{name}}","{{email}}","{{pno}}","{{identity}}")'><i class="glyphicon glyphicon-remove"></i>删除</a>
             <a data-link="service_config.html" name="consumer_list"  onclick='editPerson1("{{name}}","{{email}}","{{pno}}","{{identity}}")'><i class="glyphicon glyphicon-edit"></i>提升为员工</a>
@@ -155,14 +155,14 @@ fetch('http://127.0.0.1:5000/test/personinfo', {
     console.log('HTTP 状态码:', response.status);
     if (!response.ok) {
         throw new Error('网络请求失败');
-        
+
     }
     return response.json();
 })
 .then(data=> {
     console.log('请求成功:', data);
     // 在这里可以根据后端返回的数据执行适当的操作
-    
+
 
 
     var template = document.getElementById('template').innerHTML;
@@ -320,7 +320,7 @@ function logoff()
     // 构造数据
     let Data = {
         username: username,
-       
+
     };
     console.log(Data);
     // 发送 POST 请求
@@ -351,7 +351,7 @@ function logoff()
         alert('您取消了此操作。');
     }
 }
-    
+
 </script>
 </body>
 </html>
