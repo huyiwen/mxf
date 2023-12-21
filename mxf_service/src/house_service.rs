@@ -2,7 +2,9 @@ use mini_moka::sync::Cache;
 use sea_orm::*;
 use std::time::Duration;
 
-use mxf_entity::{HouseFilter, HouseListingEntity, HouseListingModel, MXFError};
+use mxf_entity::{
+    HouseFilter, HouseListingColumn, HouseListingEntity, HouseListingModel, MXFError,
+};
 
 pub struct HouseService {
     num_pages_cache: Cache<String, u64>,
@@ -28,6 +30,16 @@ impl HouseService {
                 "House with hno {} not found",
                 hno
             )))
+    }
+
+    pub async fn get_next_hno(&self, db: &DbConn) -> Result<u32, MXFError> {
+        let hno = HouseListingEntity::find()
+            .order_by_desc(HouseListingColumn::Hno)
+            .one(db)
+            .await?
+            .ok_or(MXFError::UnknownError(format!("No houses found")))?
+            .hno;
+        Ok(hno + 1)
     }
 
     /// If ok, returns (post models, num pages).

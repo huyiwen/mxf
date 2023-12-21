@@ -193,6 +193,21 @@ async fn register(
     ))
 }
 
+#[get("/new")]
+async fn new_house(
+    house_conn: Connection<'_, HouseDb>,
+    house_service: &State<HouseService>,
+) -> Result<Template, Flash<Redirect>> {
+    let next_hno = house_service
+        .get_next_hno(house_conn.into_inner())
+        .await
+        .map_err(|e| e.to_redirect(uri!(index)))?;
+    Ok(Template::render(
+        "modifyhouse",
+        context! { hno: next_hno, title: "新建房屋" },
+    ))
+}
+
 pub fn routes() -> Vec<Route> {
     routes![
         index,
@@ -204,5 +219,6 @@ pub fn routes() -> Vec<Route> {
         login_success,
         login,
         register,
+        new_house,
     ]
 }
