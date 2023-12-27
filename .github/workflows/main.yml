@@ -16,4 +16,4 @@ jobs:
         with:
           deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
           secrets: |
-            MYSQL = ${{ secrets.MYSQL }}
+            MYSQL = "${{ secrets.MYSQL }}"
