@@ -11,9 +11,8 @@ jobs:
     environment: Production
     runs-on: ubuntu-latest
     steps:
-      - name: 'Create env file'
-        run: |
-          export MYSQL=${{ secrets.MYSQL }}
       - uses: shuttle-hq/deploy-action@main
         with:
           deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
+        env:
+          MYSQL: ${{ secrets.MYSQL }}
