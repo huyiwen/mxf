@@ -3,36 +3,35 @@
     当前登录帐号：{{ user.uname }} （用户编号：{{ user.uno }}，电话：{{ user.uphone }}，邮箱：{{ user.uemail }}，用户类型：{{user.utype}}）
 </div>
 <div class="orders" style="margin: 0% 10%">
-{{#if count}}<p><a>{{title}}</a> <a href="/mine">我的</a></p>{{else}}
-<a href="/my_orders">我的订单</a>
-<a href="/my_listings">我的挂租</a>
-<a href="/received_orders">收到的申请</a>
-{{/if}}
+<p><a>{{title}}</a> <a href="/mine">我的</a>
+<a href="/new">挂租</a>
+</p>
+
 <div style="max-height: 60vh; overflow-y: scroll">
 <table class="dataintable">
   <tbody>
     <tr>
-      {{#if ../shown/[0]}}<th>订单号</th>{{/if}}
-      {{#if ../shown/[1]}}<th>房源</th>{{/if}}
-      {{#if ../shown/[2]}}<th>订单类型</th>{{/if}}
-      {{#if ../shown/[3]}}<th>订单时间</th>{{/if}}
-      {{#if ../shown/[4]}}<th>开始时间</th>{{/if}}
-      {{#if ../shown/[5]}}<th>结束时间</th>{{/if}}
-      {{#if ../shown/[6]}}<th>房主</th>{{/if}}
-      {{#if ../shown/[7]}}<th>租房人</th>{{/if}}
+      {{#if ../shown/[0]}}<th>房源编号</th>{{/if}}
+      {{#if ../shown/[1]}}<th>区域</th>{{/if}}
+      {{#if ../shown/[2]}}<th>地址</th>{{/if}}
+      {{#if ../shown/[3]}}<th>房型</th>{{/if}}
+      {{#if ../shown/[4]}}<th>楼层</th>{{/if}}
+      {{#if ../shown/[5]}}<th>面积</th>{{/if}}
+      {{#if ../shown/[6]}}<th>价格</th>{{/if}}
+      {{#if ../shown/[7]}}<th>主要设施</th>{{/if}}
       {{#if ../shown/[8]}}<th>操作</th>{{/if}}
     </tr>
-    {{#each orders}}
+    {{#each listings}}
     <tr>
-      {{#if ../shown/[0]}}<td>{{{ono}}}</td>{{/if}}
-      {{#if ../shown/[1]}}<td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>{{/if}}
-      {{#if ../shown/[2]}}<td>{{{otype}}}</td>{{/if}}
-      {{#if ../shown/[3]}}<td>{{{odate}}}</td>{{/if}}
-      {{#if ../shown/[4]}}<td>{{{ostart}}}</td>{{/if}}
-      {{#if ../shown/[5]}}<td>{{{oend}}}</td>{{/if}}
-      {{#if ../shown/[6]}}<td>{{{hlandlore}}}</td>{{/if}}
-      {{#if ../shown/[7]}}<td>{{{htenant}}}</td>{{/if}}
-      {{#if ../shown/[8]}}<td><button onclick="confirm({{{ono}}})" {{lookup ../confirm @index}}>同意</button></td>{{/if}}
+      {{#if ../shown/[0]}}<td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>{{/if}}
+      {{#if ../shown/[1]}}<td>{{{hdistrict}}}</td>{{/if}}
+      {{#if ../shown/[2]}}<td>{{{haddr}}}</td>{{/if}}
+      {{#if ../shown/[3]}}<td>{{{hlo}}}</td>{{/if}}
+      {{#if ../shown/[4]}}<td>{{{hflr}}}</td>{{/if}}
+      {{#if ../shown/[5]}}<td>{{{harea}}}</td>{{/if}}
+      {{#if ../shown/[6]}}<td>{{{hprice}}}</td>{{/if}}
+      {{#if ../shown/[7]}}<td>{{{hsuite}}}</td>{{/if}}
+      {{#if ../shown/[8]}}<td><button onclick="window.location.href='/modify?hno={{{hno}}}';" {{lookup ../confirm @index}}>修改</button></td>{{/if}}
     </tr>
     {{else}}
       {{#if count}}<td colspan="{{count}}">暂无订单</td>{{/if}}

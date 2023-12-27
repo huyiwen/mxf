@@ -202,32 +202,25 @@ async fn received_orders(
 async fn my_listings(
     user: Claims,
     conn: Connection<'_, MXFDb>,
-    order_service: &State<OrderService>,
+    house_service: &State<HouseService>,
 ) -> Result<Template, Flash<Redirect>> {
     println!("user: {:?}", user.user);
     let db = conn.into_inner();
-    let received_orders = order_service
-        .get_orders_by_hlandlore(db, user.user.uno)
+    let my_listings = house_service
+        .get_houses_by_landlore(db, user.user.uno)
         .await
         .map_err(|e| e.to_redirect(uri!(index)))?;
-    let received_orders = OrderService::filter_latest(&received_orders);
 
-    let confirm_tags = received_orders
-        .iter()
-        .map(|o| if !o.is_confirmed() { "" } else { "disabled" })
-        .collect::<Vec<&str>>();
-    let shown = vec![false, true, true, false, true, true, false, true, true];
-    let count = shown.iter().filter(|&n| *n).count();
+    let shown = vec![true; 9];
 
     Ok(Template::render(
         "my_listings",
         context! {
             title: "收到的申请",
             user: user.user,
-            orders: received_orders,
+            listings: my_listings,
             shown: shown,
-            count: count,
-            confirm: confirm_tags,
+            count: 9,
         },
     ))
 }
