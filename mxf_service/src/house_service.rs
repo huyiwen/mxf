@@ -32,6 +32,18 @@ impl HouseService {
             )))
     }
 
+    pub async fn get_houses_by_landlore(
+        &self,
+        db: &DbConn,
+        hlandlore: u32,
+    ) -> Result<Vec<HouseListingModel>, MXFError> {
+        HouseListingEntity::find()
+            .filter(HouseListingColumn::Hlandlore.eq(hlandlore))
+            .all(db)
+            .await
+            .map_err(|e| e.into())
+    }
+
     pub async fn get_next_hno(&self, db: &DbConn) -> Result<u32, MXFError> {
         let hno = HouseListingEntity::find()
             .order_by_desc(HouseListingColumn::Hno)

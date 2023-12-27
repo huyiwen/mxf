@@ -304,7 +304,7 @@
                     .then((responseData) => {
                         console.log("提交{{#if modify}}编辑{{/if}}成功:", responseData);
                         alert("提交{{#if modify}}编辑{{/if}}成功！");
-                        window.location.reload();
+                        window.location.href = "/my_listings";
                     })
                     .catch((error) => {
                         console.error("提交{{#if modify}}编辑{{/if}}失败:", error);
