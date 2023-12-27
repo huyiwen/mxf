@@ -29,7 +29,7 @@ pub async fn main(secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
                 url: url,
                 min_connections: Some(16),
                 max_connections: 1024,
-                connect_timeout: 1,
+                connect_timeout: 3,
                 idle_timeout: Some(120),
                 sqlx_logging: true,
             },
