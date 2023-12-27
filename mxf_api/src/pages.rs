@@ -7,8 +7,8 @@ use sea_orm_rocket::Connection;
 
 use super::{Claims, MXFDb};
 use mxf_entity::user::UserType;
-use mxf_entity::{HouseFilter, MXFError, ListStatus};
-use mxf_service::{HouseService, OrderService, UserService};
+use mxf_entity::{HouseFilter, ListStatus, MXFError};
+use mxf_service::{HouseService, OrderService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
 
@@ -122,17 +122,15 @@ async fn mine(
                     count: 9,
                 },
             ))
-        },
-        _ => {
-            Ok(Template::render(
-                "mine",
-                context! {
-                    title: "所有订单",
-                    user: user.user,
-                    count: 0,
-                },
-            ))
         }
+        _ => Ok(Template::render(
+            "mine",
+            context! {
+                title: "所有订单",
+                user: user.user,
+                count: 0,
+            },
+        )),
     }
 }
 
@@ -163,7 +161,6 @@ async fn my_orders(
         },
     ))
 }
-
 
 #[get("/received_orders")]
 async fn received_orders(
@@ -252,10 +249,7 @@ async fn login_success(_user: Claims) -> Redirect {
 }
 
 #[get("/login", rank = 2)]
-async fn login(
-    flash: Option<FlashMessage<'_>>,
-    user_service: &State<UserService>,
-) -> Result<Template, Flash<Redirect>> {
+async fn login(flash: Option<FlashMessage<'_>>) -> Result<Template, Flash<Redirect>> {
     // let public_key = user_service
     //     .get_public_key()
     //     .await
@@ -267,10 +261,7 @@ async fn login(
 }
 
 #[get("/register")]
-async fn register(
-    flash: Option<FlashMessage<'_>>,
-    user_service: &State<UserService>,
-) -> Result<Template, Flash<Redirect>> {
+async fn register(flash: Option<FlashMessage<'_>>) -> Result<Template, Flash<Redirect>> {
     // let public_key = user_service
     //     .get_public_key()
     //     .await
@@ -301,9 +292,7 @@ async fn modify_house(
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     if house.hlandlore != user.user.uno {
-        return Err(
-            MXFError::NotLandlore(user.user.uno).to_redirect(uri!(index))
-        );
+        return Err(MXFError::NotLandlore(user.user.uno).to_redirect(uri!(index)));
     }
     Ok(Template::render(
         "modifyhouse",
@@ -326,12 +315,12 @@ async fn modify_house(
 }
 
 #[get("/modify", rank = 2)]
-async fn modify_house_no_hno(user: Claims) -> Redirect {
+async fn modify_house_no_hno(_user: Claims) -> Redirect {
     Redirect::to(uri!(my_listings))
 }
 
-#[get("/modify?<hno>", rank = 3)]
-async fn modify_house_need_login(hno: Option<u32>) -> Redirect {
+#[get("/modify?<_hno>", rank = 3)]
+async fn modify_house_need_login(_hno: Option<u32>) -> Redirect {
     Redirect::to(uri!(login))
 }
 

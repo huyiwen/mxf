@@ -6,7 +6,7 @@ use super::{Claims, MXFDb};
 
 use mxf_entity::errors::JieguoResponse;
 use mxf_service::HouseService;
-use mxf_entity::{HouseListingModel, HnoData};
+use mxf_entity::HouseListingModel;
 
 
 #[post("/new", data = "<house_data>")]

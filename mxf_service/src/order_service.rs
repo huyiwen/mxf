@@ -1,19 +1,14 @@
-use std::collections::HashMap;
-use chrono::{Months, Local};
+use chrono::{Local, Months};
 use sea_orm::*;
-use serde_json;
+use std::collections::HashMap;
 
 use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderModel, OrderType};
 
-pub struct OrderService {
-    date_format: &'static str,
-}
+pub struct OrderService;
 
 impl OrderService {
     pub fn init() -> Self {
-        Self {
-            date_format: "%Y-%m-%d",
-        }
+        Self {}
     }
 
     pub async fn get_orders_by_hno(
