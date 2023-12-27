@@ -27,7 +27,7 @@ pub async fn main(secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
             "databases.mxf",
             sea_orm_rocket::Config {
                 url: url,
-                min_connections: Some(16),
+                min_connections: Some(4),
                 max_connections: 1024,
                 connect_timeout: 3,
                 idle_timeout: Some(120),
