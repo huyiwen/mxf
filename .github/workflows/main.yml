@@ -14,6 +14,5 @@ jobs:
       - name: Deploy
         uses: shuttle-hq/deploy-action@main
         with:
-          secrets: |
-            MYSQL = "${{ secrets.MYSQL }}"
+          secrets: 'MYSQL = "${{ secrets.MYSQL }}"'
           deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
