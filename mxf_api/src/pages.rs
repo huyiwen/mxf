@@ -7,7 +7,7 @@ use sea_orm_rocket::Connection;
 
 use super::{Claims, MXFDb};
 use mxf_entity::user::UserType;
-use mxf_entity::{HouseFilter, MXFError};
+use mxf_entity::{HouseFilter, MXFError, ListStatus};
 use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
@@ -38,7 +38,7 @@ async fn zufang(
     println!("{}", db.ping().await.is_ok());
 
     let (houses, num_pages) = house_service
-        .find_houses_in_page(db, house_filter, DEFAULT_POSTS_PER_PAGE)
+        .get_houses_in_page(db, house_filter, DEFAULT_POSTS_PER_PAGE, true)
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
 
@@ -90,6 +90,7 @@ async fn detail(
             hequip: house.hsuite,
             hprice: house.hprice,
             hlandlore: house.hlandlore,
+            hunlisted: house.hunlisted,
             hdate: chrono::NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
             orders: orders,
             is_admin: user.map(|u| u.user.utype != UserType::User).unwrap_or(false),
@@ -207,7 +208,7 @@ async fn my_listings(
     println!("user: {:?}", user.user);
     let db = conn.into_inner();
     let my_listings = house_service
-        .get_houses_by_landlore(db, user.user.uno)
+        .get_houses_by_landlore(db, user.user.uno, false)
         .await
         .map_err(|e| e.to_redirect(uri!(index)))?;
 
@@ -223,6 +224,21 @@ async fn my_listings(
             count: 9,
         },
     ))
+}
+
+#[get("/my_orders", rank = 2)]
+async fn my_orders_need_login() -> Redirect {
+    Redirect::to(uri!(login))
+}
+
+#[get("/received_orders", rank = 2)]
+async fn received_orders_need_login() -> Redirect {
+    Redirect::to(uri!(login))
+}
+
+#[get("/my_listings", rank = 2)]
+async fn my_listings_need_login() -> Redirect {
+    Redirect::to(uri!(login))
 }
 
 #[get("/mine", rank = 2)]
@@ -285,7 +301,9 @@ async fn modify_house(
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     if house.hlandlore != user.user.uno {
-        return Err(MXFError::NotLandlore.to_redirect(uri!(index)));
+        return Err(
+            MXFError::NotLandlore(user.user.uno).to_redirect(uri!(index))
+        );
     }
     Ok(Template::render(
         "modifyhouse",
@@ -301,8 +319,20 @@ async fn modify_house(
             hequip: house.hsuite,
             hprice: house.hprice,
             hlandlore: house.hlandlore,
+            hunlisted: house.hunlisted,
+            is_unlisted: house.hunlisted == ListStatus::Unlisted,
         },
     ))
+}
+
+#[get("/modify", rank = 2)]
+async fn modify_house_no_hno(user: Claims) -> Redirect {
+    Redirect::to(uri!(my_listings))
+}
+
+#[get("/modify?<hno>", rank = 3)]
+async fn modify_house_need_login(hno: Option<u32>) -> Redirect {
+    Redirect::to(uri!(login))
 }
 
 pub fn routes() -> Vec<Route> {
@@ -314,12 +344,17 @@ pub fn routes() -> Vec<Route> {
         mine,
         mine_need_login,
         my_orders,
+        my_orders_need_login,
         received_orders,
+        received_orders_need_login,
         my_listings,
+        my_listings_need_login,
         login_success,
         login,
         register,
         new_house,
         modify_house,
+        modify_house_no_hno,
+        modify_house_need_login,
     ]
 }

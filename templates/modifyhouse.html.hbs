@@ -135,9 +135,11 @@
                         <label>房源编号：</label>
                         <p>{{hno}}</p>
                     </div>
-                    <div class="input-container"> </div>
                     {{/if}}
-
+                    <div class="info">
+                        <label>挂租状态：</label>
+                        <p>{{hunlisted}}</p>
+                    </div>
                 </div>
                 <div class="row">
                     {{#if modify}}
@@ -261,11 +263,21 @@
                 </div>
 
                 <div class="row">
+                    {{#if modify}}
+                    <div class="input-container">
+                        <input
+                            type="button"
+                            value={{#if is_unlisted}}"上架"{{else}}"下架"{{/if}}
+                            onclick="ModifyHouse(true)"
+                        />
+                    </div>
+                    {{/if}}
+
                     <div class="input-container">
                         <input
                             type="button"
                             value="提交"
-                            onclick="ModifyHouse()"
+                            onclick="ModifyHouse(false)"
                         />
                     </div>
                 </div>
@@ -273,21 +285,26 @@
 
         <script>
 
-            function ModifyHouse() {
+            function ModifyHouse(toggle) {
+                let new_unlisted = {{#if is_unlisted}}"Listed"{{else}}"Unlisted"{{/if}};
+                if (!toggle) new_unlisted = "Listed";
                 // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
                 let data = {
                     hno: {{#if hno}}{{hno}}{{else}}0{{/if}},
-                    hdistrict: document.getElementById("Hdistrict_m").value,
-                    haddr: document.getElementById("Haddr_m").value,
-                    hlo: document.getElementById("Hlo_m").value,
-                    hflr: document.getElementById("Hflr_m").value,
-                    harea: document.getElementById("Harea_m").value,
-                    hequip: document.getElementById("Hequip_m").value,
-                    hprice: document.getElementById("HRentPrice_m").value,
+                    hdistrict: document.getElementById("Hdistrict_m").value{{#if hdistrict}}||"{{hdistrict}}"{{/if}},
+                    haddr: document.getElementById("Haddr_m").value{{#if haddr}}||"{{haddr}}"{{/if}},
+                    hlo: document.getElementById("Hlo_m").value{{#if hlo}}||"{{hlo}}"{{/if}},
+                    hflr: parseInt(document.getElementById("Hflr_m").value{{#if hflr}}||"{{hflr}}"{{/if}}),
+                    harea: parseInt(document.getElementById("Harea_m").value{{#if harea}}||"{{harea}}"{{/if}}),
+                    hsuite: document.getElementById("Hequip_m").value{{#if hequip}}||"{{hequip}}"{{/if}},
+                    hprice: parseInt(document.getElementById("HRentPrice_m").value{{#if hprice}}||"{{hprice}}"{{/if}}),
+                    hlandlore: 0,
+                    hunlisted: new_unlisted,
                 };
                 console.log(data);
+
                 // 发送 POST 请求
-                fetch("/lease", {
+                fetch("/{{#if modify}}modify{{else}}new{{/if}}", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -302,9 +319,13 @@
                         return response.json();
                     })
                     .then((responseData) => {
-                        console.log("提交{{#if modify}}编辑{{/if}}成功:", responseData);
-                        alert("提交{{#if modify}}编辑{{/if}}成功！");
-                        window.location.href = "/my_listings";
+                        if (responseData.jieguo === true) {
+                            console.log("提交{{#if modify}}编辑{{/if}}成功:", responseData);
+                            alert("提交{{#if modify}}编辑{{/if}}成功！");
+                            window.location.reload();
+                        } else {
+                            alert("提交{{#if modify}}编辑{{/if}}失败："+responseData.reason);
+                        }
                     })
                     .catch((error) => {
                         console.error("提交{{#if modify}}编辑{{/if}}失败:", error);

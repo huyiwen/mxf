@@ -4,9 +4,9 @@ use rocket::serde::json::Json;
 
 use super::{Claims, MXFDb};
 
-use mxf_entity::errors::{JieguoResponse, MXFError};
+use mxf_entity::errors::JieguoResponse;
 use mxf_service::HouseService;
-use mxf_entity::HouseListingModel;
+use mxf_entity::{HouseListingModel, HnoData};
 
 
 #[post("/new", data = "<house_data>")]
@@ -22,6 +22,7 @@ async fn new_house(
         .new_house(db, house_data.into_inner(), user.user.uno)
         .await
         .map_err(|e| e.to_json())?;
+    println!("New: {}", hno);
 
     Ok(Json(JieguoResponse {
         jieguo: true,
@@ -38,14 +39,14 @@ async fn modify_house(
 ) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
     let db = conn.into_inner();
 
-    house_service
-        .update_house(db, house_data.into_inner(), user.user.uno)
+    let hno = house_service
+        .modify_house(db, house_data.into_inner(), user.user.uno)
         .await
         .map_err(|e| e.to_json())?;
 
     Ok(Json(JieguoResponse {
         jieguo: true,
-        reason: None,
+        reason: Some(hno.to_string()),
     }))
 }
 

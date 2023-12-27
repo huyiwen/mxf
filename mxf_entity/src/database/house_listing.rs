@@ -14,6 +14,34 @@ pub struct Model {
     pub hprice: u32,
     pub hlandlore: u32,
     pub hsuite: String,
+    pub hunlisted: ListStatus,
+}
+
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    EnumIter,
+    DeriveActiveEnum,
+    Serialize,
+    Deserialize,
+    PartialOrd,
+    Ord,
+    Copy,
+)]
+#[sea_orm(rs_type = "u32", db_type = "Integer")]
+pub enum ListStatus {
+    #[sea_orm(num_value = 0)]
+    Listed,
+    #[sea_orm(num_value = 1)]
+    Unlisted,
+}
+
+impl Default for ListStatus {
+    fn default() -> Self {
+        ListStatus::Listed
+    }
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

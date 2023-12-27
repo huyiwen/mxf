@@ -1,5 +1,5 @@
 use jsonwebtoken;
-use pkcs8;
+// use pkcs8;
 use rocket::http::uri::Reference;
 use rocket::response::{Flash, Redirect};
 use rocket::serde::json::Json;
@@ -33,11 +33,11 @@ pub enum MXFError {
     #[error("jwt error")]
     JWTError(#[from] jsonwebtoken::errors::Error),
 
-    #[error("failed to create rsa key")]
-    RSACreationError(#[from] pkcs8::spki::Error),
+    // #[error("failed to create rsa key")]
+    // RSACreationError(#[from] pkcs8::spki::Error),
 
-    #[error("failed to decode with rsa")]
-    RSADecryptionError(#[from] rsa::Error),
+    // #[error("failed to decode with rsa")]
+    // RSADecryptionError(#[from] rsa::Error),
 
     // Login and Register errors
 
@@ -56,7 +56,7 @@ pub enum MXFError {
     // User & House listing system error
 
     #[error("user is not authorized to operate")]
-    NotLandlore,
+    NotLandlore(u32),
 
     #[error("user is not admin")]
     NotAdmin,
@@ -69,7 +69,7 @@ pub enum MXFError {
     #[error("cache error")]
     CacheError,
 
-    #[error("unknown error")]
+    #[error("unknown error: {}", .0)]
     UnknownError(String),
 }
 

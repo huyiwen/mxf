@@ -76,20 +76,20 @@ impl OrderService {
     }
 
     pub async fn check_available(&self, db: &DbConn, hno: u32) -> Result<u32, MXFError> {
-        let orders: Vec<serde_json::Value> = OrderEntity::find()
+        let orders: Vec<(u32, u32)> = OrderEntity::find()
             .select_only()
             .column(OrderColumn::Ostatus)
-            .column_as(OrderColumn::Otype.max(), "otype")
+            .column_as(OrderColumn::Otype.max(), "mtype")
+            .filter(OrderColumn::Hno.eq(hno))
             .group_by(OrderColumn::Ostatus)
-            .having(OrderColumn::Hno.eq(hno))
-            .into_json()
+            .into_tuple()
             .all(db)
             .await
             .map_err(|e| MXFError::DatabaseError(e))?;
 
         println!("{:?}", orders);
         for order in orders {
-            if order["otype"] == (OrderType::LeaseRequest as i32) {
+            if order.1 == (OrderType::LeaseRequest as u32) {
                 return Err(MXFError::HouseUnavailable(hno));
             }
         }
@@ -132,6 +132,7 @@ impl OrderService {
             oend: Set(oend.naive_local()),
             ostatus: Set(next_ono),
         };
+        println!("Place order: {:?}", order);
         order.insert(db).await?;
         Ok(())
     }
@@ -144,7 +145,7 @@ impl OrderService {
     ) -> Result<(), MXFError> {
         let order = OrderEntity::find_by_id(ono).one(db).await?.unwrap();
         if order.hlandlore != user_uno {
-            return Err(MXFError::NotLandlore);
+            return Err(MXFError::NotLandlore(user_uno));
         }
 
         let now = Local::now();
