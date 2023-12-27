@@ -1676,6 +1676,7 @@ dependencies = [
  "mxf_api",
  "shuttle-rocket",
  "shuttle-runtime",
+ "shuttle-secrets",
 ]
 
 [[package]]
@@ -1691,6 +1692,7 @@ dependencies = [
  "rocket_dyn_templates",
  "sea-orm-rocket",
  "serde",
+ "shuttle-secrets",
  "thiserror",
  "tokio",
 ]
@@ -1717,7 +1719,6 @@ dependencies = [
  "mini-moka",
  "mxf_entity",
  "rand",
- "rsa",
  "sea-orm",
  "sea-orm-rocket",
  "serde",
@@ -2947,6 +2948,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c107b6f4780854c8b126e228ea8869f4d7b71260f962fefb57b996b8959ba6b"
 
 [[package]]
+name = "secrecy"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9bd1c54ea06cfd2f6b63219704de0b9b4f72dcc2b8fdef820be6cd799780e91e"
+dependencies = [
+ "serde",
+ "zeroize",
+]
+
+[[package]]
 name = "security-framework"
 version = "2.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3162,6 +3173,18 @@ dependencies = [
  "tonic 0.10.2",
  "tower",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "shuttle-secrets"
+version = "0.35.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95f328ab4dc937400a07d3b7e96ae84eaae8eefe756ef533c3c0545fd2f155ab"
+dependencies = [
+ "async-trait",
+ "secrecy",
+ "serde",
+ "shuttle-service",
 ]
 
 [[package]]

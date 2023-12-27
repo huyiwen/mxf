@@ -10,3 +10,4 @@ members = ['.', 'mxf_api', 'mxf_entity', 'mxf_service']
 mxf_api = { path = "mxf_api" }
 shuttle-rocket = "0.35.2"
 shuttle-runtime = "0.35.2"
+shuttle-secrets = "0.35.2"
