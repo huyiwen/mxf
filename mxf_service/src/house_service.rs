@@ -3,7 +3,7 @@ use sea_orm::*;
 use std::time::Duration;
 
 use mxf_entity::{
-    HouseFilter, HouseListingColumn, HouseListingEntity, HouseListingModel, MXFError,
+    HouseFilter, HouseListingColumn, HouseListingEntity, HouseListingModel, HouseListingActiveModel, MXFError, ListStatus
 };
 
 pub struct HouseService {
@@ -36,9 +36,12 @@ impl HouseService {
         &self,
         db: &DbConn,
         hlandlore: u32,
+        listed_only: bool,
     ) -> Result<Vec<HouseListingModel>, MXFError> {
+        let cond = Condition::any().add(HouseListingColumn::Hlandlore.eq(hlandlore))
+            .add_option(listed_only.then_some(HouseListingColumn::Hunlisted.eq(ListStatus::Listed)));
         HouseListingEntity::find()
-            .filter(HouseListingColumn::Hlandlore.eq(hlandlore))
+            .filter(cond)
             .all(db)
             .await
             .map_err(|e| e.into())
@@ -55,11 +58,12 @@ impl HouseService {
     }
 
     /// If ok, returns (post models, num pages).
-    pub async fn find_houses_in_page(
+    pub async fn get_houses_in_page(
         &self,
         db: &DbConn,
         house_filter: HouseFilter<'_>,
         posts_per_page: u8,
+        listed_only: bool,
     ) -> Result<(Vec<HouseListingModel>, u64), MXFError> {
         let filter_string = house_filter.to_string();
         let posts_per_page = posts_per_page as u64;
@@ -70,7 +74,10 @@ impl HouseService {
             Condition::from(house_filter)
         );
         let paginator = HouseListingEntity::find()
-            .filter(Condition::from(house_filter))
+            .filter(
+                Condition::from(house_filter)
+                    .add_option(listed_only.then_some(HouseListingColumn::Hunlisted.eq(ListStatus::Listed)))
+            )
             .paginate(db, posts_per_page);
         let do_insert = !self.num_pages_cache.contains_key::<String>(&filter_string);
         if do_insert {
@@ -91,17 +98,41 @@ impl HouseService {
         house_listing: HouseListingModel,
         uno: u32,
     ) -> Result<u32, MXFError> {
-        println!("New house by {}: {:?}", uno, house_listing);
-        Ok(1)
+        let mut house: HouseListingActiveModel = house_listing.into();
+        house.hno = NotSet;
+        house.hlandlore = Set(uno);
+        let res = HouseListingEntity::insert(house).exec(db).await?;
+        Ok(res.last_insert_id)
     }
 
-    pub async fn update_house(
+    pub async fn verify_landlore(&self, db: &DbConn, hno: u32, uno: u32) -> Result<(), MXFError> {
+        let hlandlore = self.get_house_by_hno(db, hno).await?.hlandlore;
+        if hlandlore != uno {
+            Err(MXFError::NotLandlore(uno))
+        } else {
+            Ok(())
+        }
+    }
+
+    pub async fn modify_house(
         &self,
         db: &DbConn,
         house_listing: HouseListingModel,
         uno: u32,
     ) -> Result<u32, MXFError> {
-        println!("Modify house by {}: {:?}", uno, house_listing);
-        Ok(1)
+        self.verify_landlore(db, house_listing.hno, uno).await?;
+        let mut house: HouseListingActiveModel = house_listing.into();
+        house.reset(HouseListingColumn::Hdistrict);
+        house.reset(HouseListingColumn::Haddr);
+        house.reset(HouseListingColumn::Hlo);
+        house.reset(HouseListingColumn::Hflr);
+        house.reset(HouseListingColumn::Harea);
+        house.reset(HouseListingColumn::Hprice);
+        house.reset(HouseListingColumn::Hsuite);
+        house.reset(HouseListingColumn::Hunlisted);
+        println!("To Modify: {}, {:?}", uno, house);
+        let house = HouseListingEntity::update(house).exec(db).await?;
+        println!("Modify house by {}: {:?}", uno, house);
+        Ok(house.hno)
     }
 }

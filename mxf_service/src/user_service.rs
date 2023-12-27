@@ -110,17 +110,13 @@ impl UserService {
         username_or_uno: &'_ str,
     ) -> Result<UserModel, MXFError> {
         if !self.uno_cache.contains_key(&String::from(username_or_uno)) {
+            let mut cond = Condition::any().add(UserColumn::Uname.eq(username_or_uno));
+            match username_or_uno.parse::<u32>() {
+                Ok(u) => cond = cond.add(UserColumn::Uno.eq(u)),
+                Err(_) => (),
+            }
             let user = UserEntity::find()
-                .filter(
-                    Condition::any()
-                        .add(UserColumn::Uname.eq(username_or_uno))
-                        .add_option(
-                            username_or_uno
-                                .parse::<u32>()
-                                .ok()
-                                .map(|u| UserColumn::Uno.eq(u)),
-                        ),
-                )
+                .filter(cond)
                 .one(db)
                 .await?
                 .ok_or(MXFError::UserNotFound(username_or_uno.into()))?;

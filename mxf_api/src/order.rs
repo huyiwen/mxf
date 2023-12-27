@@ -3,7 +3,7 @@ use rocket::{Route, State};
 use sea_orm_rocket::Connection;
 
 use mxf_entity::errors::JieguoResponse;
-use mxf_entity::LeaseData;
+use mxf_entity::HnoData;
 use mxf_service::{HouseService, OrderService};
 
 use super::{Claims, MXFDb};
@@ -14,7 +14,7 @@ async fn lease(
     conn: Connection<'_, MXFDb>,
     order_service: &State<OrderService>,
     house_service: &State<HouseService>,
-    lease_data: Json<LeaseData>,
+    lease_data: Json<HnoData>,
 ) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
     let hno = lease_data.hno;
     let db = conn.into_inner();
@@ -30,6 +30,7 @@ async fn lease(
         .map_err(|e| e.to_json())?
         .hlandlore;
 
+    println!("Lease: ono = {}, hlandlore = {}", ono, hlandlore);
     order_service
         .place_order_by_ono(db, ono, hno, hlandlore, user.user.uno)
         .await

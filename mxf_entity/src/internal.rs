@@ -5,5 +5,5 @@ pub mod session_data;
 
 pub use errors::MXFError;
 pub use house_filter::HouseFilter;
-pub use order_data::LeaseData;
+pub use order_data::HnoData;
 pub use session_data::{LoginData, RegisterData};

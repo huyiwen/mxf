@@ -6,6 +6,7 @@ pub use house_listing::ActiveModel as HouseListingActiveModel;
 pub use house_listing::Column as HouseListingColumn;
 pub use house_listing::Entity as HouseListingEntity;
 pub use house_listing::Model as HouseListingModel;
+pub use house_listing::ListStatus;
 
 pub use user::ActiveModel as UserActiveModel;
 pub use user::Column as UserColumn;
