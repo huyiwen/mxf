@@ -9,13 +9,13 @@ use mxf_entity::{LoginData, RegisterData};
 use mxf_service::UserService;
 
 use super::claims::{Claims, JWT_COOKIE_NAME};
-use super::UserDb;
+use super::MXFDb;
 
 /// Tries to authenticate a user. Successful authentications get a JWT
 #[post("/login", format = "json", data = "<login>")]
 async fn login(
     jar: &CookieJar<'_>,
-    conn: Connection<'_, UserDb>,
+    conn: Connection<'_, MXFDb>,
     user_service: &State<UserService>,
     login: Json<LoginData<'_>>,
 ) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {
@@ -38,7 +38,7 @@ async fn login(
 /// Tries to authenticate a user. Successful authentications get a JWT
 #[post("/register", format = "json", data = "<register>")]
 async fn register(
-    conn: Connection<'_, UserDb>,
+    conn: Connection<'_, MXFDb>,
     user_service: &State<UserService>,
     register: Json<RegisterData<'_>>,
 ) -> Result<Json<JieguoResponse>, Json<JieguoResponse>> {

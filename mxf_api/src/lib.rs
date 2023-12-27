@@ -10,16 +10,16 @@ pub(self) mod database;
 pub mod order;
 pub mod pages;
 pub mod session;
+pub mod house_listing;
 
 pub(self) use claims::Claims;
-use database::{HouseDb, OrderDb, UserDb};
+use database::MXFDb;
 use mxf_service::{HouseService, OrderService, UserService};
+
 
 pub async fn main() -> rocket::Rocket<rocket::Build> {
     rocket::build()
-        .attach(HouseDb::init())
-        .attach(UserDb::init())
-        .attach(OrderDb::init())
+        .attach(MXFDb::init())
         .manage(HouseService::init())
         .manage(UserService::init())
         .manage(OrderService::init())
@@ -27,5 +27,6 @@ pub async fn main() -> rocket::Rocket<rocket::Build> {
         .mount("/", pages::routes())
         .mount("/", session::routes())
         .mount("/", order::routes())
+        .mount("/", house_listing::routes())
         .attach(Template::fairing())
 }

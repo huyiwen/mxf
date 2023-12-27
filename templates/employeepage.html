@@ -36,14 +36,14 @@
         <li><a href="wiki.html"><span class="glyphicon glyphicon-book"></span>&nbsp;&nbsp;使用文档</a></li>
         -->
     </ul>
+    <!--
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-         <!--
           <a id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             admin
             <span class="caret"></span>
           </a>
-    
+
           <ul class="dropdown-menu" aria-labelledby="dLabel">
             <li><a href="index.html"><span class="glyphicon glyphicon-cog"></span>&nbsp;&nbsp;个人设置</a></li>
           </ul>
@@ -64,7 +64,7 @@
     <h3 style="margin-left: 10%;">目前待审批的租赁请求为：</h3>
     <br>
 <div class="panel panel-default" style="margin: 0 10% 0 10%;">
-    
+
     <div class="table-responsive">
       <table class="table table-bordered" >
         <thead>
@@ -83,11 +83,11 @@
           <td class="center">{{Hno}}</td>
           <td class="center">{{Hlandlore}}</td>
           <td class="center">{{HRentPrice}}</td>
-          
+
           <td class="center">
             <a data-link="service_config.html" name="consumer_list" onclick='admit("{{name}}","{{Hno}}")'><i class="glyphicon glyphicon-ok"></i>审批通过</a>
             <a data-link="service_config.html" name="consumer_list" onclick='reject("{{name}}","{{Hno}}")''><i class="glyphicon glyphicon-remove"></i>不通过</a>
-            
+
           </td>
         </tr>
         </tbody>
@@ -140,8 +140,8 @@ function getParameterByName(name) {
         };
 
 
-        
-        
+
+
 
         // 发送 POST 请求
         fetch('http://127.0.0.1:5000/test/houseinfo', {
@@ -155,16 +155,16 @@ function getParameterByName(name) {
             console.log('HTTP 状态码:', response.status);
             if (!response.ok) {
                 throw new Error('网络请求失败');
-                
+
             }
             return response.json();
         })
         .then(data=> {
             console.log('请求成功:', data);
             // 在这里可以根据后端返回的数据执行适当的操作
-            
-      
-       
+
+
+
             var template = document.getElementById('template').innerHTML;
             //console.log('模板内容：', template);
             var fuc = Handlebars.compile(template); //使用handlebars对转换后的html字符串进行编译，f是函数
@@ -179,19 +179,19 @@ function getParameterByName(name) {
         // 在这里可以处理请求失败的情况
         return;
     });
-       
+
 function reject(name,Hno) {
         // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
         let  confirmLease = confirm("确定不通过此审批吗?");
         if (confirmLease){
-    
+
         let username = getParameterByName("username");
-    
+
         // 构造数据
         let data= {
             tenantname:name,
             Hno:Hno,
-          
+
         };
         console.log(data);
         // 发送 POST 请求
@@ -211,7 +211,7 @@ function reject(name,Hno) {
             .then(responseData => {
                 console.log('请求成功:', responseData);
                 alert('成功拒绝此租赁请求！');
-              
+
             })
             .catch(error => {
                 console.error('请求失败:', error);
@@ -221,20 +221,20 @@ function reject(name,Hno) {
             alert('您取消了此操作。');
         }
     }
-    
+
 
     function admit(name,Hno) {
         // 获取用户信息，这里简化为弹出提示框，请替换为实际获取用户信息的逻辑
         let  confirmLease = confirm("确定通过此审批吗?");
         if (confirmLease){
-    
+
         let username = getParameterByName("username");
-    
+
         // 构造数据
         let data= {
             tenantname:name,
             Hno:Hno,
-          
+
         };
         console.log(data);
         // 发送 POST 请求
@@ -254,7 +254,7 @@ function reject(name,Hno) {
             .then(responseData => {
                 console.log('请求成功:', responseData);
                 alert('成功审批此租赁请求！');
-                
+
             })
             .catch(error => {
                 console.error('请求失败:', error);
@@ -264,7 +264,7 @@ function reject(name,Hno) {
             alert('您取消了此操作。');
         }
     }
-    
+
     function logoff()
 {
     let  confirmLease = confirm("确定要注销此账号吗?此操作不可恢复");
@@ -275,7 +275,7 @@ function reject(name,Hno) {
     // 构造数据
     let Data = {
         username: username,
-       
+
     };
     console.log(Data);
     // 发送 POST 请求
@@ -306,11 +306,11 @@ function reject(name,Hno) {
         alert('您取消了此操作。');
     }
 }
-    
 
 
 
-    
+
+
 </script>
 </body>
 </html>

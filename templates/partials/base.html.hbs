@@ -32,15 +32,24 @@
         {{/unless}}
 
         <div class="navbar">
-            <a>
-            <a>
+            <a style="margin: 0% 10%"> </a>
             <a href="/index">主页</a>
             <a href="/zufang">租房</a>
             <a href="/new">挂租</a>
-            <a>
-            <a href="/mine">订单</a>
-            <a href="/login">登录</a>
+            <a style="margin: 0% 5%"> </a>
+            <div class="dropdown" style="">
+            <button class="dropbtn" onclick="window.location.href='/mine';">我的</button>
+            <div class="dropdown-content">
+                <a href="/my_orders">我的订单</a>
+                <a href="/my_listings">我的挂租</a>
+                <a href="/received_orders">收到的申请</a>
+                <form action="/logout" method="post" accept-charset="utf-8" style="text-align: center; margin: 3%;">
+                    <input type="submit" name="logout" id="logout" value="logout" />
+                </form>
+            </div>
+            </div>
         </div>
+
 <!--
   <link rel="stylesheet" href="css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/bootstrap-maizi.css"/>

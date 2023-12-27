@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-
-use chrono::{Duration, Utc};
+use chrono::{Months, Local};
 use sea_orm::*;
+use serde_json;
 
 use mxf_entity::{MXFError, OrderActiveModel, OrderColumn, OrderEntity, OrderModel, OrderType};
 
@@ -76,26 +76,25 @@ impl OrderService {
     }
 
     pub async fn check_available(&self, db: &DbConn, hno: u32) -> Result<u32, MXFError> {
-        let orders = self.get_orders_by_hno(db, hno).await?;
+        let orders: Vec<serde_json::Value> = OrderEntity::find()
+            .select_only()
+            .column(OrderColumn::Ostatus)
+            .column_as(OrderColumn::Otype.max(), "otype")
+            .group_by(OrderColumn::Ostatus)
+            .having(OrderColumn::Hno.eq(hno))
+            .into_json()
+            .all(db)
+            .await
+            .map_err(|e| MXFError::DatabaseError(e))?;
 
-        let mut max_ono = 0;
-        let mut max_otype = OrderType::LeaseRequest;
+        println!("{:?}", orders);
         for order in orders {
-            if order.ono > max_ono {
-                max_ono = order.ono;
-                max_otype = order.otype;
-            } else if order.ono == max_ono {
-                if order.otype > max_otype {
-                    max_otype = order.otype;
-                }
+            if order["otype"] == (OrderType::LeaseRequest as i32) {
+                return Err(MXFError::HouseUnavailable(hno));
             }
         }
 
-        if max_otype == OrderType::LeaseConfirm {
-            Err(MXFError::HouseUnavailable(hno))
-        } else {
-            self.get_next_ono(db).await
-        }
+        self.get_next_ono(db).await
     }
 
     async fn get_next_ono(&self, db: &DbConn) -> Result<u32, MXFError> {
@@ -113,25 +112,25 @@ impl OrderService {
     pub async fn place_order_by_ono(
         &self,
         db: &DbConn,
-        ono: u32,
+        next_ono: u32,
         hno: u32,
         hlandlore: u32,
         htenant: u32,
     ) -> Result<(), MXFError> {
-        let now = Utc::now();
+        let now = Local::now();
         let oend = now
-            .checked_add_signed(Duration::weeks(4))
+            .checked_add_months(Months::new(1))
             .ok_or(MXFError::UnknownError("end of the world error".into()))?;
         let order = OrderActiveModel {
-            ono: Set(ono),
+            ono: Set(next_ono),
             hno: Set(hno),
             hlandlore: Set(hlandlore),
             htenant: Set(htenant),
-            odate: Set(now.to_rfc3339()),
+            odate: Set(now.naive_local()),
             otype: Set(OrderType::LeaseRequest),
-            ostart: Set(now.format(self.date_format).to_string()),
-            oend: Set(oend.format(self.date_format).to_string()),
-            ostatus: Set(ono),
+            ostart: Set(now.naive_local()),
+            oend: Set(oend.naive_local()),
+            ostatus: Set(next_ono),
         };
         order.insert(db).await?;
         Ok(())
@@ -145,17 +144,16 @@ impl OrderService {
     ) -> Result<(), MXFError> {
         let order = OrderEntity::find_by_id(ono).one(db).await?.unwrap();
         if order.hlandlore != user_uno {
-            return Err(MXFError::NonOwnerCannotConfirm);
+            return Err(MXFError::NotLandlore);
         }
 
-        let next_ono = self.get_next_ono(db).await?;
-        let now = Utc::now();
+        let now = Local::now();
         let order = OrderActiveModel {
-            ono: Set(next_ono),
+            ono: NotSet,
             hno: Set(order.hno),
             hlandlore: Set(order.hlandlore),
             htenant: Set(order.htenant),
-            odate: Set(now.to_rfc3339()),
+            odate: Set(now.naive_local()),
             otype: Set(OrderType::LeaseConfirm),
             ostart: Set(order.ostart),
             oend: Set(order.oend),

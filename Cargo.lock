@@ -1699,6 +1699,7 @@ dependencies = [
 name = "mxf_entity"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "jsonwebtoken",
  "pkcs8",
  "rocket",
@@ -1722,6 +1723,7 @@ dependencies = [
  "sea-orm",
  "sea-orm-rocket",
  "serde",
+ "serde_json",
  "thiserror",
 ]
 
