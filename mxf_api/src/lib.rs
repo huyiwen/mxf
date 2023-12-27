@@ -5,6 +5,7 @@ use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 use sea_orm_rocket::Database;
 use shuttle_secrets::SecretStore;
+use std::env;
 
 pub(self) mod claims;
 pub(self) mod database;
@@ -19,7 +20,7 @@ use mxf_service::{HouseService, OrderService, UserService};
 
 
 pub async fn main(secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
-    let url = secret_store.get("MYSQL").unwrap();
+    let url = secret_store.get("MYSQL").unwrap_or(env::var("MYSQL").unwrap());
     let figment = rocket::Config::figment().merge((
             "databases.mxf",
             sea_orm_rocket::Config {
