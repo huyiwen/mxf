@@ -20,8 +20,9 @@ use mxf_service::{HouseService, OrderService, UserService};
 
 
 pub async fn main(secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
-    let secret_key = secret_store.get("MYSQL").unwrap();
+    let secret_key = secret_store.get("SECRET_KEY").unwrap();
     let url = secret_store.get("MYSQL").unwrap();
+    println!("secret_key: {}, url: {}", secret_key, url);
     let figment = rocket::Config::figment()
         .merge(("secret_key", secret_key))
         .merge((
