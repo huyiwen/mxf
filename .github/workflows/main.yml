@@ -11,10 +11,10 @@ jobs:
     environment: Production
     runs-on: ubuntu-latest
     steps:
+      - name: Create Secrets
+        run: |
+          echo "MYSQL = '${{ secrets.MYSQL }}'" > Secrets.toml
       - name: Deploy
         uses: shuttle-hq/deploy-action@main
         with:
           deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
-          environment: Production
-        env:
-          MYSQL: ${{ secrets.MYSQL }}
