@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Create Secrets
         run: |
-          echo "MYSQL = '${{ secrets.MYSQL }}'" > Secrets.toml
+          echo "MYSQL = '${{ secrets.MYSQL }}'" > /home/runner/work/mxf/mxf/Secrets.toml
       - name: Deploy
         uses: shuttle-hq/deploy-action@main
         with:
