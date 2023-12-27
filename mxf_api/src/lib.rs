@@ -19,11 +19,12 @@ use database::MXFDb;
 use mxf_service::{HouseService, OrderService, UserService};
 
 
-pub async fn main(#[shuttle_secrets::Secrets] secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
-    let env_url = env::var("MYSQL").unwrap_or(String::from("?"));
-    let url = secret_store.get("MYSQL").unwrap_or(env_url);
-    println!("SQL: {}", url);
-    let figment = rocket::Config::figment().merge((
+pub async fn main(secret_store: SecretStore) -> rocket::Rocket<rocket::Build> {
+    let secret_key = secret_store.get("MYSQL").unwrap();
+    let url = secret_store.get("MYSQL").unwrap();
+    let figment = rocket::Config::figment()
+        .merge(("secret_key", secret_key))
+        .merge((
             "databases.mxf",
             sea_orm_rocket::Config {
                 url: url,
