@@ -5,9 +5,9 @@ use rocket::{Route, State};
 use rocket_dyn_templates::{context, Template};
 use sea_orm_rocket::Connection;
 
-use super::{Claims, HouseDb, OrderDb};
+use super::{Claims, MXFDb};
 use mxf_entity::user::UserType;
-use mxf_entity::HouseFilter;
+use mxf_entity::{HouseFilter, MXFError};
 use mxf_service::{HouseService, OrderService, UserService};
 
 const DEFAULT_POSTS_PER_PAGE: u8 = 10u8;
@@ -30,11 +30,12 @@ async fn index_alias() -> Redirect {
 
 #[get("/zufang?<house_filter..>")]
 async fn zufang(
-    conn: Connection<'_, HouseDb>,
+    conn: Connection<'_, MXFDb>,
     house_service: &State<HouseService>,
     house_filter: HouseFilter<'_>,
 ) -> Result<Template, Flash<Redirect>> {
     let db = conn.into_inner();
+    println!("{}", db.ping().await.is_ok());
 
     let (houses, num_pages) = house_service
         .find_houses_in_page(db, house_filter, DEFAULT_POSTS_PER_PAGE)
@@ -57,21 +58,21 @@ async fn zufang(
 async fn detail(
     hno: Option<u32>,
     user: Option<Claims>,
-    house_conn: Connection<'_, HouseDb>,
+    conn: Connection<'_, MXFDb>,
     house_service: &State<HouseService>,
-    order_conn: Connection<'_, OrderDb>,
     order_service: &State<OrderService>,
 ) -> Result<Template, Flash<Redirect>> {
+    let db = conn.into_inner();
     if hno.is_none() {
         return Err(Flash::error(Redirect::to("/zufang"), "房屋编号不能为空"));
     }
 
     let house = house_service
-        .get_house_by_hno(house_conn.into_inner(), hno.unwrap())
+        .get_house_by_hno(db, hno.unwrap())
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     let orders = order_service
-        .get_orders_by_hno(order_conn.into_inner(), hno.unwrap())
+        .get_orders_by_hno(db, hno.unwrap())
         .await
         .map_err(|e| e.to_redirect("/zufang"))?;
     let orders = OrderService::filter_latest(&orders);
@@ -99,36 +100,80 @@ async fn detail(
 #[get("/mine")]
 async fn mine(
     user: Claims,
-    order_conn: Connection<'_, OrderDb>,
+    conn: Connection<'_, MXFDb>,
+    order_service: &State<OrderService>,
+) -> Result<Template, Flash<Redirect>> {
+    match user.user.utype {
+        UserType::Admin => {
+            let orders = order_service
+                .get_orders(conn.into_inner())
+                .await
+                .map_err(|e| e.to_redirect(uri!(index)))?;
+            let orders = OrderService::filter_latest(&orders);
+            let shown = vec![true; 8];
+            Ok(Template::render(
+                "mine",
+                context! {
+                    title: "所有订单",
+                    user: user.user,
+                    orders: orders,
+                    shown: shown,
+                    count: 9,
+                },
+            ))
+        },
+        _ => {
+            Ok(Template::render(
+                "mine",
+                context! {
+                    title: "所有订单",
+                    user: user.user,
+                    count: 0,
+                },
+            ))
+        }
+    }
+}
+
+#[get("/my_orders")]
+async fn my_orders(
+    user: Claims,
+    conn: Connection<'_, MXFDb>,
     order_service: &State<OrderService>,
 ) -> Result<Template, Flash<Redirect>> {
     println!("user: {:?}", user.user);
-    if user.user.utype != UserType::User {
-        let admin_orders = order_service
-            .get_orders(order_conn.into_inner())
-            .await
-            .map_err(|e| e.to_redirect(uri!(index)))?;
-        return Ok(Template::render(
-            "mine",
-            context! {
-                is_admin: true,
-                user_name: user.name,
-                user_id: user.user.uno,
-                uphone: user.user.uphone,
-                uemail: user.user.uemail,
-                my_orders: admin_orders,
-            },
-        ));
-    }
-
-    let order_db = order_conn.into_inner();
+    let db = conn.into_inner();
     let my_orders = order_service
-        .get_orders_by_htenant(order_db, user.user.uno)
+        .get_orders_by_htenant(db, user.user.uno)
         .await
         .map_err(|e| e.to_redirect(uri!(index)))?;
     let my_orders = OrderService::filter_latest(&my_orders);
+    let shown = vec![false, true, true, false, true, true, true, false, false];
+    let count = shown.iter().filter(|&n| *n).count();
+
+    Ok(Template::render(
+        "mine",
+        context! {
+            title: "我的订单",
+            user: user.user,
+            orders: my_orders,
+            shown: shown,
+            count: count,
+        },
+    ))
+}
+
+
+#[get("/received_orders")]
+async fn received_orders(
+    user: Claims,
+    conn: Connection<'_, MXFDb>,
+    order_service: &State<OrderService>,
+) -> Result<Template, Flash<Redirect>> {
+    println!("user: {:?}", user.user);
+    let db = conn.into_inner();
     let received_orders = order_service
-        .get_orders_by_hlandlore(order_db, user.user.uno)
+        .get_orders_by_hlandlore(db, user.user.uno)
         .await
         .map_err(|e| e.to_redirect(uri!(index)))?;
     let received_orders = OrderService::filter_latest(&received_orders);
@@ -137,17 +182,51 @@ async fn mine(
         .iter()
         .map(|o| if !o.is_confirmed() { "" } else { "disabled" })
         .collect::<Vec<&str>>();
+    let shown = vec![false, true, true, false, true, true, true, false, true];
+    let count = shown.iter().filter(|&n| *n).count();
 
     Ok(Template::render(
         "mine",
         context! {
-            is_admin: user.user.utype != UserType::User,
-            user_name: user.name,
-            user_id: user.user.uno,
-            uphone: user.user.uphone,
-            uemail: user.user.uemail,
-            my_orders: my_orders,
-            received_orders: received_orders,
+            title: "收到的订单",
+            user: user.user,
+            orders: received_orders,
+            shown: shown,
+            count: count,
+            confirm: confirm_tags,
+        },
+    ))
+}
+
+#[get("/my_listings")]
+async fn my_listings(
+    user: Claims,
+    conn: Connection<'_, MXFDb>,
+    order_service: &State<OrderService>,
+) -> Result<Template, Flash<Redirect>> {
+    println!("user: {:?}", user.user);
+    let db = conn.into_inner();
+    let received_orders = order_service
+        .get_orders_by_hlandlore(db, user.user.uno)
+        .await
+        .map_err(|e| e.to_redirect(uri!(index)))?;
+    let received_orders = OrderService::filter_latest(&received_orders);
+
+    let confirm_tags = received_orders
+        .iter()
+        .map(|o| if !o.is_confirmed() { "" } else { "disabled" })
+        .collect::<Vec<&str>>();
+    let shown = vec![false, true, true, false, true, true, false, true, true];
+    let count = shown.iter().filter(|&n| *n).count();
+
+    Ok(Template::render(
+        "my_listings",
+        context! {
+            title: "收到的申请",
+            user: user.user,
+            orders: received_orders,
+            shown: shown,
+            count: count,
             confirm: confirm_tags,
         },
     ))
@@ -194,17 +273,42 @@ async fn register(
 }
 
 #[get("/new")]
-async fn new_house(
-    house_conn: Connection<'_, HouseDb>,
-    house_service: &State<HouseService>,
-) -> Result<Template, Flash<Redirect>> {
-    let next_hno = house_service
-        .get_next_hno(house_conn.into_inner())
-        .await
-        .map_err(|e| e.to_redirect(uri!(index)))?;
+async fn new_house() -> Result<Template, Flash<Redirect>> {
     Ok(Template::render(
         "modifyhouse",
-        context! { hno: next_hno, title: "新建房屋" },
+        context! { modify: false, title: "新建房屋" },
+    ))
+}
+
+#[get("/modify?<hno>")]
+async fn modify_house(
+    hno: u32,
+    user: Claims,
+    conn: Connection<'_, MXFDb>,
+    house_service: &State<HouseService>,
+) -> Result<Template, Flash<Redirect>> {
+    let house = house_service
+        .get_house_by_hno(conn.into_inner(), hno)
+        .await
+        .map_err(|e| e.to_redirect("/zufang"))?;
+    if house.hlandlore != user.user.uno {
+        return Err(MXFError::NotLandlore.to_redirect(uri!(index)));
+    }
+    Ok(Template::render(
+        "modifyhouse",
+        context! {
+            modify: true,
+            title: "编辑房屋",
+            hno: hno,
+            hdistrict: house.hdistrict,
+            haddr: house.haddr,
+            hlo: house.hlo,
+            hflr: house.hflr,
+            harea: house.harea,
+            hequip: house.hsuite,
+            hprice: house.hprice,
+            hlandlore: house.hlandlore,
+        },
     ))
 }
 
@@ -216,9 +320,13 @@ pub fn routes() -> Vec<Route> {
         detail,
         mine,
         mine_need_login,
+        my_orders,
+        received_orders,
+        my_listings,
         login_success,
         login,
         register,
         new_house,
+        modify_house,
     ]
 }

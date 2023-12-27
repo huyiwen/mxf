@@ -1,94 +1,46 @@
 {{#*inline "page"}}
 <div class="title" style="text-align: center; margin: 3%; font-size: x-large">
-    当前登录帐号：{{ user_name }} （用户编号：{{ user_id }}，电话：{{ uphone }}，邮箱：{{ uemail }}）
+    当前登录帐号：{{ user.uname }} （用户编号：{{ user.uno }}，电话：{{ user.uphone }}，邮箱：{{ user.uemail }}，用户类型：{{user.utype}}）
 </div>
 <div class="orders" style="margin: 0% 10%">
-{{#if is_admin}}
-<p>所有订单记录</p>
+{{#if count}}<p><a>{{title}}</a> <a href="/mine">我的</a></p>{{else}}
+<a href="/my_orders">我的订单</a>
+<a href="/my_listings">我的挂租</a>
+<a href="/received_orders">收到的申请</a>
+{{/if}}
 <div style="max-height: 60vh; overflow-y: scroll">
 <table class="dataintable">
   <tbody>
     <tr>
-      <th>订单号</th>
-      <th>房源</th>
-      <th>订单类型</th>
-      <th>订单时间</th>
-      <th>开始时间</th>
-      <th>结束时间</th>
-      <th>房主</th>
-      <th>租房人</th>
+      {{#if ../shown/[0]}}<th>订单号</th>{{/if}}
+      {{#if ../shown/[1]}}<th>房源</th>{{/if}}
+      {{#if ../shown/[2]}}<th>订单类型</th>{{/if}}
+      {{#if ../shown/[3]}}<th>订单时间</th>{{/if}}
+      {{#if ../shown/[4]}}<th>开始时间</th>{{/if}}
+      {{#if ../shown/[5]}}<th>结束时间</th>{{/if}}
+      {{#if ../shown/[6]}}<th>房主</th>{{/if}}
+      {{#if ../shown/[7]}}<th>租房人</th>{{/if}}
+      {{#if ../shown/[8]}}<th>操作</th>{{/if}}
     </tr>
-    {{#each my_orders}}
+    {{#each orders}}
     <tr>
-      <td>{{{ono}}}</td>
-      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
-      <td>{{{otype}}}</td>
-      <td>{{{odate}}}</td>
-      <td>{{{ostart}}}</td>
-      <td>{{{oend}}}</td>
-      <td>{{{hlandlore}}}</td>
-      <td>{{{htenant}}}</td>
+      {{#if ../shown/[0]}}<td>{{{ono}}}</td>{{/if}}
+      {{#if ../shown/[1]}}<td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>{{/if}}
+      {{#if ../shown/[2]}}<td>{{{otype}}}</td>{{/if}}
+      {{#if ../shown/[3]}}<td>{{{odate}}}</td>{{/if}}
+      {{#if ../shown/[4]}}<td>{{{ostart}}}</td>{{/if}}
+      {{#if ../shown/[5]}}<td>{{{oend}}}</td>{{/if}}
+      {{#if ../shown/[6]}}<td>{{{hlandlore}}}</td>{{/if}}
+      {{#if ../shown/[7]}}<td>{{{htenant}}}</td>{{/if}}
+      {{#if ../shown/[8]}}<td><button onclick="confirm({{{ono}}})" {{lookup ../confirm @index}}>同意</button></td>{{/if}}
     </tr>
     {{else}}
-      <td colspan="5">管理员系统暂无订单</td>
+      {{#if count}}<td colspan="{{count}}">暂无订单</td>{{/if}}
     {{/each}}
   </tbody>
 </table>
 </div>
-{{else}}
-<p>你的申请</p>
-<div style="max-height: 25vh; overflow-y: scroll">
-<table class="dataintable">
-  <tbody>
-    <tr>
-      <th>房源</th>
-      <th>订单类型</th>
-      <th>开始时间</th>
-      <th>结束时间</th>
-      <th>房主</th>
-    </tr>
-    {{#each my_orders}}
-    <tr>
-      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
-      <td>{{{otype}}}</td>
-      <td>{{{ostart}}}</td>
-      <td>{{{oend}}}</td>
-      <td>{{{hlandlore}}}</td>
-    </tr>
-    {{else}}
-      <td colspan="5">您的账户当前暂无已发起的订单</td>
-    {{/each}}
-  </tbody>
-</table>
-</div>
-<p>你收到的申请：</p>
-<div style="max-height: 25vh; overflow-y: scroll">
-<table class="dataintable">
-  <tbody>
-    <tr>
-      <th>房源</th>
-      <th>订单类型</th>
-      <th>开始时间</th>
-      <th>结束时间</th>
-      <th>租房人</th>
-      <th>操作</th>
-    </tr>
-    {{#each received_orders}}
-    <tr>
-      <td><a href="/detail?hno={{{hno}}}">{{{hno}}}</a></td>
-      <td>{{{otype}}}</td>
-      <td>{{{ostart}}}</td>
-      <td>{{{oend}}}</td>
-      <td>{{{htenant}}}</td>
-      <td><button onclick="confirm({{{ono}}})" {{lookup ../confirm @index}}>同意</button></td>
-    </tr>
-    {{else}}
-      <td colspan="6">您的账户暂时未收到租房订单</td>
-    {{/each}}
-  </tbody>
-</table>
-</div>
-{{/if}}
+
 <form action="/logout" method="post" accept-charset="utf-8" style="text-align: center; margin: 3%;">
     <input type="submit" name="logout" id="logout" value="logout" />
 </form>

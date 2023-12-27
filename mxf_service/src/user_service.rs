@@ -96,7 +96,7 @@ impl UserService {
         let uno = self
             .uno_cache
             .get(&String::from(username))
-            .ok_or(MXFError::CacheError(None))?;
+            .ok_or(MXFError::CacheError)?;
 
         UserEntity::find_by_id(uno)
             .one(db)
@@ -131,7 +131,7 @@ impl UserService {
         let uno = self
             .uno_cache
             .get(&String::from(username_or_uno))
-            .ok_or(MXFError::CacheError(None))?;
+            .ok_or(MXFError::CacheError)?;
 
         UserEntity::find_by_id(uno)
             .one(db)

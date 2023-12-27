@@ -72,4 +72,24 @@ impl HouseService {
             num_pages,
         ))
     }
+
+    pub async fn new_house(
+        &self,
+        db: &DbConn,
+        house_listing: HouseListingModel,
+        uno: u32,
+    ) -> Result<u32, MXFError> {
+        println!("New house by {}: {:?}", uno, house_listing);
+        Ok(1)
+    }
+
+    pub async fn update_house(
+        &self,
+        db: &DbConn,
+        house_listing: HouseListingModel,
+        uno: u32,
+    ) -> Result<u32, MXFError> {
+        println!("Modify house by {}: {:?}", uno, house_listing);
+        Ok(1)
+    }
 }
